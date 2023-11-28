@@ -1,0 +1,14 @@
+### .gitignore for CubeIDE project
+# Metadata of CubeIDE
+.metadata/
+
+# Setting of CubeIDE
+*/.settings/
+
+# Projects files
+*/.cproject
+*/.project
+*/.mxproject
+
+# Debug files
+*/Debug
