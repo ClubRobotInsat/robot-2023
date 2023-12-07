@@ -11,7 +11,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32g4xx_hal.h"
-#include "controller.h"
+#include "../Inc/controller.h"
 
 /* Private define ------------------------------------------------------------*/
 /** @defgroup CONTROLLER_Private_Constants
@@ -39,8 +39,10 @@
 #define HOME_Port		GPIOA
 #define HOME_Pin		(0x04U)
 
-#define PWM_Tim			TIM2
 #define PWM_Tim_Channel	TIM_CHANNEL_1
+
+
+TIM_HandleTypeDef  PWM_Tim;
 
 /**
   * @}
@@ -60,12 +62,15 @@
   * @}
   */
 
-void CONTROLLER_InitController(CONTROLLER_FuncConfigTypeDef * hFuncConfig){
+void CONTROLLER_InitController(CONTROLLER_FuncConfigTypeDef * hFuncConfig, TIM_HandleTypeDef TimerController){
+
+	PWM_Tim = TimerController;
+
 	/* Reset controller */
-	CONTROLLER_Reset(hPerifConfig);
+	CONTROLLER_Reset();
 
 	/* Disable output */
-	CONTROLLER_Disable(hPerifConfig);
+	CONTROLLER_Disable();
 
 	/* Set Step Mode for controller */
 	if (hFuncConfig->Step_Mode == CONTROLLER_MODE_FULL_STEP){
@@ -89,23 +94,15 @@ void CONTROLLER_InitController(CONTROLLER_FuncConfigTypeDef * hFuncConfig){
 	}
 
 	/* Set Step Direction for controller */
-	if (hFuncConfig->DIR == CONTROLLER_DIR_CLOCK_WISE){
-		HAL_GPIO_WritePin(DIR_Port, DIR_Pin, GPIO_PIN_SET);
-	}
-	else if (hFuncConfig->DIR == CONTROLLER_DIR_COUNTER_CLOCK_WISE){
-		HAL_GPIO_WritePin(DIR_Port, DIR_Pin, GPIO_PIN_RESET);
-	}
-	else {
-			CONTROLLER_Error_Handler();
-	}
+	HAL_GPIO_WritePin(DIR_Port, DIR_Pin, GPIO_PIN_SET);
 
 	/* Set Max frequency by ARR and PRC*/
 
-	__HAL_TIM_SET_PRESCALER(PWM_Tim,(HAL_RCC_GetSysClockFreq()/hFuncConfig->Step_Freq_Max/CONTROLLER_ARR_INIT)-1);
+	__HAL_TIM_SET_PRESCALER(&PWM_Tim,(HAL_RCC_GetSysClockFreq()/hFuncConfig->Step_Freq_Max/CONTROLLER_ARR_INIT)-1);
 
-	__HAL_TIM_SET_AUTORELOAD(PWM_Tim, CONTROLLER_ARR_INIT-1);
+	__HAL_TIM_SET_AUTORELOAD(&PWM_Tim, CONTROLLER_ARR_INIT-1);
 
-	__HAL_TIM_SET_COMPARE(PWM_Tim,PWM_Tim_Channel,CONTROLLER_DUTY_CYCLE_INIT);
+	__HAL_TIM_SET_COMPARE(&PWM_Tim,PWM_Tim_Channel,CONTROLLER_DUTY_CYCLE_INIT);
 }
 
 void CONTROLLER_Reset(){
@@ -116,18 +113,17 @@ void CONTROLLER_Reset(){
 
 
 void CONTROLLER_Enable(){
-	HAL_TIM_PWM_Start(PWM_Tim, PWM_Tim_Channel);
+	HAL_TIM_PWM_Start(&PWM_Tim, PWM_Tim_Channel);
 	HAL_GPIO_WritePin(Enable_Port, Enable_Pin, GPIO_PIN_RESET);
 }
 
 void CONTROLLER_Disable(){
 	HAL_GPIO_WritePin(Enable_Port, Enable_Pin, GPIO_PIN_SET);
-	HAL_TIM_PWM_Stop(PWM_Tim, PWM_Tim_Channel);
+	HAL_TIM_PWM_Stop(&PWM_Tim, PWM_Tim_Channel);
 }
 
 
-void CONTROLLER_Set_DIR(CONTROLLER_FuncConfigTypeDef * hFuncConfig, uint8_t direction){
-	hFuncConfig->DIR = direction;
+void CONTROLLER_Set_DIR(uint8_t direction){
 
 	if (direction == CONTROLLER_DIR_CLOCK_WISE){
 		HAL_GPIO_WritePin(DIR_Port, DIR_Pin, GPIO_PIN_SET);
@@ -140,17 +136,17 @@ void CONTROLLER_Set_DIR(CONTROLLER_FuncConfigTypeDef * hFuncConfig, uint8_t dire
 	}
 }
 
-void CONTROLLER_Set_STEP_freq(COuint8_t CONTROLLER_DIR){
+void CONTROLLER_Set_STEP_freq(uint8_t percentage_freq){
 	uint8_t autoreloadWanted;
-	if(1 <= percentage_freq <= 100)
+	if((1 <= percentage_freq) && (percentage_freq <= 100))
 	{
 		autoreloadWanted = (CONTROLLER_ARR_INIT*100/percentage_freq)-1;
-		__HAL_TIM_SET_AUTORELOAD(PWM_Tim,autoreloadWanted);
-		__HAL_TIM_SET_COMPARE(PWM_Tim, PWM_Tim_Channel, autoreloadWanted/2);
+		__HAL_TIM_SET_AUTORELOAD(&PWM_Tim,autoreloadWanted);
+		__HAL_TIM_SET_COMPARE(&PWM_Tim, PWM_Tim_Channel, autoreloadWanted*10/100);
 	}
 	else if (percentage_freq == 0)
 	{
-		__HAL_TIM_SET_COMPARE(PWM_Tim, PWM_Tim_Channel, CONTROLLER_DUTY_CYCLE_INIT);
+		__HAL_TIM_SET_COMPARE(&PWM_Tim, PWM_Tim_Channel, CONTROLLER_DUTY_CYCLE_INIT);
 	}
 	else
 	{
@@ -159,7 +155,10 @@ void CONTROLLER_Set_STEP_freq(COuint8_t CONTROLLER_DIR){
 }
 
 uint16_t CONTROLLER_Get_STEP_freq(){
-	return HAL_RCC_GetSysClockFreq()/((__HAL_TIM_GET_PRESCALER(PWM_Tim)+1)*(__HAL_TIM_GET_AUTORELOAD(PWM_Tim)+1));
+	return 0;
+			//HAL_RCC_GetSysClockFreq()/((__HAL_TIM_GET_PRESCALER(&PWM_Tim)+1)*(__HAL_TIM_GET_AUTORELOAD(&PWM_Tim)+1));
 }
 
+void CONTROLLER_Error_Handler(){
 
+}

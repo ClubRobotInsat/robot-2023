@@ -69,7 +69,7 @@ static void MX_TIM2_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+	CONTROLLER_FuncConfigTypeDef motor1 = {CONTROLLER_MODE_FULL_STEP, CONTROLLER_FREQ_MAX_LOW};
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -93,7 +93,9 @@ int main(void)
   MX_FDCAN1_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-
+  CONTROLLER_InitController(&motor1,htim2);
+  CONTROLLER_Enable();
+  CONTROLLER_Set_STEP_freq(100);
   /* USER CODE END 2 */
 
   /* Infinite loop */

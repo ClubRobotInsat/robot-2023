@@ -81,7 +81,7 @@ typedef enum {
   * @brief Controller max frequency of the PWM signal
   * @{
   */
-#define  CONTROLLER_FREQ_MAX_LOW			(0x03E8U)   /*!< Max frequency 1kHz */
+#define  CONTROLLER_FREQ_MAX_LOW			(0x03E8U)   /*!< Max frequency 500Hz */
 #define  CONTROLLER_FREQ_MAX_MEDIUM    		(0x1388U)   /*!< Max frequency 5kHz */
 #define  CONTROLLER_FREQ_MAX_HIGH			(0x2710U)	/*!< Max frequency 10kHz */
 /**
@@ -106,7 +106,7 @@ typedef enum {
   *
   * @retval None
   */
-void CONTROLLER_InitController(CONTROLLER_FuncConfigTypeDef * hFuncConfig);
+void CONTROLLER_InitController(CONTROLLER_FuncConfigTypeDef * hFuncConfig, TIM_HandleTypeDef TimerController);
 
 /**
   * @brief  Enable the controller
@@ -141,7 +141,7 @@ void CONTROLLER_Disable(void);
   *            @arg CONTROLLER_DIR_CLOCK_WISE: Step in clock wise orientation
   * @retval None
   */
-void CONTROLLER_Set_DIR(uint8_t CONTROLLER_Dir);
+void CONTROLLER_Set_DIR(uint8_t direction);
 
 /**
   * @brief  Set the frequency of the step output
@@ -160,8 +160,6 @@ void CONTROLLER_Set_STEP_freq(uint8_t CONTROLLER_percentage);
   */
 uint16_t CONTROLLER_Get_STEP_freq(void);
 
-void CONTROLLER_Error_Handler(void){
-
-}
+void CONTROLLER_Error_Handler(void);
 
 #endif
