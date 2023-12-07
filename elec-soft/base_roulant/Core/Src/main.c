@@ -32,6 +32,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define MOTOR_1_TIM_CHANNEL TIM_CHANNEL_1
+#define MOTOR_2_TIM_CHANNEL TIM_CHANNEL_4
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -70,6 +71,8 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	Motor_Config motor1;
+	Motor_Config motor2;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -94,7 +97,10 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   motor1 = Motor_Init(DIR_Motor_1_GPIO_Port, DIR_Motor_1_Pin, &htim2, MOTOR_1_TIM_CHANNEL);
+  motor2 = Motor_Init(DIR_Motor_2_GPIO_Port, DIR_Motor_2_Pin, &htim2, MOTOR_2_TIM_CHANNEL);
+
   Motor_Start(motor1);
+  Motor_Start(motor2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -103,14 +109,24 @@ int main(void)
   {
     /* USER CODE END WHILE */
 	  Motor_Set_Direction(motor1, MOTOR_DIRECTION_CW);
+	  Motor_Set_Direction(motor2, MOTOR_DIRECTION_CW);
+
 	  Motor_Set_Speed(motor1, 50);
+	  Motor_Set_Speed(motor2, 50);
+
 	  HAL_Delay(3000);
 	  Motor_Set_Speed(motor1, 0);
+	  Motor_Set_Speed(motor2, 0);
 	  HAL_Delay(3000);
 	  Motor_Set_Direction(motor1, MOTOR_DIRECTION_CCW);
+	  Motor_Set_Direction(motor2, MOTOR_DIRECTION_CCW);
+
 	  Motor_Set_Speed(motor1, 50);
+	  Motor_Set_Speed(motor2, 50);
+
 	  HAL_Delay(3000);
 	  Motor_Set_Speed(motor1, 0);
+	  Motor_Set_Speed(motor2, 0);
 	  HAL_Delay(3000);
     /* USER CODE BEGIN 3 */
   }
