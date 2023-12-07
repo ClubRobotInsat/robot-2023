@@ -31,7 +31,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define MOTOR_1_TIM_CHANNEL TIM_CHANNEL_1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -69,7 +69,7 @@ static void MX_TIM2_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	CONTROLLER_FuncConfigTypeDef motor1 = {CONTROLLER_MODE_FULL_STEP, CONTROLLER_FREQ_MAX_LOW};
+	Motor_Config motor1;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -93,9 +93,8 @@ int main(void)
   MX_FDCAN1_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  CONTROLLER_InitController(&motor1,htim2);
-  CONTROLLER_Enable();
-  CONTROLLER_Set_STEP_freq(100);
+  motor1 = Motor_Init(DIR_Motor_1_GPIO_Port, DIR_Motor_1_Pin, &htim2, MOTOR_1_TIM_CHANNEL);
+  Motor_Start(motor1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -103,7 +102,16 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+	  Motor_Set_Direction(motor1, MOTOR_DIRECTION_CW);
+	  Motor_Set_Speed(motor1, 50);
+	  HAL_Delay(3000);
+	  Motor_Set_Speed(motor1, 0);
+	  HAL_Delay(3000);
+	  Motor_Set_Direction(motor1, MOTOR_DIRECTION_CCW);
+	  Motor_Set_Speed(motor1, 50);
+	  HAL_Delay(3000);
+	  Motor_Set_Speed(motor1, 0);
+	  HAL_Delay(3000);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -212,9 +220,9 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 0;
+  htim2.Init.Prescaler = 35;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 4.294967295E9;
+  htim2.Init.Period = 99;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -244,6 +252,10 @@ static void MX_TIM2_Init(void)
   {
     Error_Handler();
   }
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  {
+    Error_Handler();
+  }
   /* USER CODE BEGIN TIM2_Init 2 */
 
   /* USER CODE END TIM2_Init 2 */
@@ -266,23 +278,14 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, Enable_Stepper_Pin|Reset_Stepper_Pin|USM0_Stepper_Pin|USM1_Stepper_Pin
-                          |DIR__Stepper_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, DIR_Motor_1_Pin|DIR_Motor_2_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : Enable_Stepper_Pin Reset_Stepper_Pin USM0_Stepper_Pin USM1_Stepper_Pin
-                           DIR__Stepper_Pin */
-  GPIO_InitStruct.Pin = Enable_Stepper_Pin|Reset_Stepper_Pin|USM0_Stepper_Pin|USM1_Stepper_Pin
-                          |DIR__Stepper_Pin;
+  /*Configure GPIO pins : DIR_Motor_1_Pin DIR_Motor_2_Pin */
+  GPIO_InitStruct.Pin = DIR_Motor_1_Pin|DIR_Motor_2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : Home_Stepper_Pin */
-  GPIO_InitStruct.Pin = Home_Stepper_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  HAL_GPIO_Init(Home_Stepper_GPIO_Port, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */

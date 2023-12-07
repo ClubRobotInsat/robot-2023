@@ -28,8 +28,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32g4xx_hal.h"
-#include "../../Drivers/STEPPER/Inc/controller.h"
-
+#include "motor_dc.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -60,20 +59,14 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define Enable_Stepper_Pin GPIO_PIN_0
-#define Enable_Stepper_GPIO_Port GPIOA
-#define Reset_Stepper_Pin GPIO_PIN_1
-#define Reset_Stepper_GPIO_Port GPIOA
-#define USM0_Stepper_Pin GPIO_PIN_2
-#define USM0_Stepper_GPIO_Port GPIOA
-#define USM1_Stepper_Pin GPIO_PIN_3
-#define USM1_Stepper_GPIO_Port GPIOA
-#define Home_Stepper_Pin GPIO_PIN_4
-#define Home_Stepper_GPIO_Port GPIOA
-#define STEP_Stepper_Pin GPIO_PIN_5
-#define STEP_Stepper_GPIO_Port GPIOA
-#define DIR__Stepper_Pin GPIO_PIN_6
-#define DIR__Stepper_GPIO_Port GPIOA
+#define PWM_Motor_1_Pin GPIO_PIN_0
+#define PWM_Motor_1_GPIO_Port GPIOA
+#define PWM_Motor_2_Pin GPIO_PIN_3
+#define PWM_Motor_2_GPIO_Port GPIOA
+#define DIR_Motor_1_Pin GPIO_PIN_4
+#define DIR_Motor_1_GPIO_Port GPIOA
+#define DIR_Motor_2_Pin GPIO_PIN_7
+#define DIR_Motor_2_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 
