@@ -32,7 +32,10 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define MOTOR_1_TIM_CHANNEL TIM_CHANNEL_1
-#define MOTOR_2_TIM_CHANNEL TIM_CHANNEL_4
+#define MOTOR_2_TIM_CHANNEL TIM_CHANNEL_2
+#define MOTOR_3_TIM_CHANNEL TIM_CHANNEL_3
+#define MOTOR_4_TIM_CHANNEL TIM_CHANNEL_4
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -72,7 +75,8 @@ int main(void)
   /* USER CODE BEGIN 1 */
 	Motor_Config motor1;
 	Motor_Config motor2;
-
+	Motor_Config motor3;
+	Motor_Config motor4;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -98,9 +102,76 @@ int main(void)
   /* USER CODE BEGIN 2 */
   motor1 = Motor_Init(DIR_Motor_1_GPIO_Port, DIR_Motor_1_Pin, &htim2, MOTOR_1_TIM_CHANNEL);
   motor2 = Motor_Init(DIR_Motor_2_GPIO_Port, DIR_Motor_2_Pin, &htim2, MOTOR_2_TIM_CHANNEL);
+  motor3 = Motor_Init(DIR_Motor_3_GPIO_Port, DIR_Motor_3_Pin, &htim2, MOTOR_3_TIM_CHANNEL);
+  motor4 = Motor_Init(DIR_Motor_4_GPIO_Port, DIR_Motor_4_Pin, &htim2, MOTOR_4_TIM_CHANNEL);
 
   Motor_Start(motor1);
   Motor_Start(motor2);
+  Motor_Start(motor3);
+  Motor_Start(motor4);
+
+  HAL_Delay(2000);
+  Motor_Set_Direction(motor1, MOTOR_DIRECTION_CW);
+  Motor_Set_Direction(motor2, MOTOR_DIRECTION_CW);
+  Motor_Set_Direction(motor3, MOTOR_DIRECTION_CW);
+  Motor_Set_Direction(motor4, MOTOR_DIRECTION_CW);
+  Motor_Set_Speed(motor1, 25);
+  Motor_Set_Speed(motor2, 25);
+  Motor_Set_Speed(motor3, 25);
+  Motor_Set_Speed(motor4, 25);
+  HAL_Delay(3000);
+  Motor_Set_Speed(motor1, 0);
+  Motor_Set_Speed(motor2, 0);
+  Motor_Set_Speed(motor3, 0);
+  Motor_Set_Speed(motor4, 0);
+  HAL_Delay(1000);
+  Motor_Set_Direction(motor1, MOTOR_DIRECTION_CCW);
+  Motor_Set_Direction(motor2, MOTOR_DIRECTION_CCW);
+  Motor_Set_Direction(motor3, MOTOR_DIRECTION_CCW);
+  Motor_Set_Direction(motor4, MOTOR_DIRECTION_CCW);
+  Motor_Set_Speed(motor1, 75);
+  Motor_Set_Speed(motor2, 75);
+  Motor_Set_Speed(motor3, 75);
+  Motor_Set_Speed(motor4, 75);
+  HAL_Delay(2000);
+  Motor_Set_Speed(motor1, 0);
+  Motor_Set_Speed(motor2, 0);
+  Motor_Set_Speed(motor3, 0);
+  Motor_Set_Speed(motor4, 0);
+  HAL_Delay(1000);
+
+  Motor_Set_Direction(motor1, MOTOR_DIRECTION_CCW);
+  Motor_Set_Direction(motor2, MOTOR_DIRECTION_CW);
+  Motor_Set_Direction(motor3, MOTOR_DIRECTION_CCW);
+  Motor_Set_Direction(motor4, MOTOR_DIRECTION_CW);
+  Motor_Set_Speed(motor1, 75);
+  Motor_Set_Speed(motor2, 75);
+  Motor_Set_Speed(motor3, 75);
+  Motor_Set_Speed(motor4, 75);
+  HAL_Delay(2000);
+
+  Motor_Set_Speed(motor1, 0);
+  Motor_Set_Speed(motor2, 0);
+  Motor_Set_Speed(motor3, 0);
+  Motor_Set_Speed(motor4, 0);
+  HAL_Delay(1000);
+
+  Motor_Set_Direction(motor1, MOTOR_DIRECTION_CW);
+  Motor_Set_Direction(motor2, MOTOR_DIRECTION_CCW);
+  Motor_Set_Direction(motor3, MOTOR_DIRECTION_CW);
+  Motor_Set_Direction(motor4, MOTOR_DIRECTION_CCW);
+  Motor_Set_Speed(motor1, 75);
+  Motor_Set_Speed(motor2, 75);
+  Motor_Set_Speed(motor3, 75);
+  Motor_Set_Speed(motor4, 75);
+  HAL_Delay(2000);
+
+  Motor_Set_Speed(motor1, 0);
+  Motor_Set_Speed(motor2, 0);
+  Motor_Set_Speed(motor3, 0);
+  Motor_Set_Speed(motor4, 0);
+  HAL_Delay(1000);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -108,26 +179,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  Motor_Set_Direction(motor1, MOTOR_DIRECTION_CW);
-	  Motor_Set_Direction(motor2, MOTOR_DIRECTION_CW);
 
-	  Motor_Set_Speed(motor1, 50);
-	  Motor_Set_Speed(motor2, 50);
-
-	  HAL_Delay(3000);
-	  Motor_Set_Speed(motor1, 0);
-	  Motor_Set_Speed(motor2, 0);
-	  HAL_Delay(3000);
-	  Motor_Set_Direction(motor1, MOTOR_DIRECTION_CCW);
-	  Motor_Set_Direction(motor2, MOTOR_DIRECTION_CCW);
-
-	  Motor_Set_Speed(motor1, 50);
-	  Motor_Set_Speed(motor2, 50);
-
-	  HAL_Delay(3000);
-	  Motor_Set_Speed(motor1, 0);
-	  Motor_Set_Speed(motor2, 0);
-	  HAL_Delay(3000);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -268,6 +320,14 @@ static void MX_TIM2_Init(void)
   {
     Error_Handler();
   }
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+  {
+    Error_Handler();
+  }
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
   {
     Error_Handler();
@@ -294,10 +354,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, DIR_Motor_1_Pin|DIR_Motor_2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, DIR_Motor_1_Pin|DIR_Motor_2_Pin|DIR_Motor_3_Pin|DIR_Motor_4_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : DIR_Motor_1_Pin DIR_Motor_2_Pin */
-  GPIO_InitStruct.Pin = DIR_Motor_1_Pin|DIR_Motor_2_Pin;
+  /*Configure GPIO pins : DIR_Motor_1_Pin DIR_Motor_2_Pin DIR_Motor_3_Pin DIR_Motor_4_Pin */
+  GPIO_InitStruct.Pin = DIR_Motor_1_Pin|DIR_Motor_2_Pin|DIR_Motor_3_Pin|DIR_Motor_4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

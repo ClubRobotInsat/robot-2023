@@ -28,10 +28,10 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32g4xx_hal.h"
-#include "motor_dc.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "motor_dc.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -61,12 +61,20 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define PWM_Motor_1_Pin GPIO_PIN_0
 #define PWM_Motor_1_GPIO_Port GPIOA
-#define PWM_Motor_2_Pin GPIO_PIN_3
+#define PWM_Motor_2_Pin GPIO_PIN_1
 #define PWM_Motor_2_GPIO_Port GPIOA
+#define PWM_Motor_3_Pin GPIO_PIN_2
+#define PWM_Motor_3_GPIO_Port GPIOA
 #define DIR_Motor_1_Pin GPIO_PIN_4
 #define DIR_Motor_1_GPIO_Port GPIOA
-#define DIR_Motor_2_Pin GPIO_PIN_7
+#define DIR_Motor_2_Pin GPIO_PIN_5
 #define DIR_Motor_2_GPIO_Port GPIOA
+#define DIR_Motor_3_Pin GPIO_PIN_8
+#define DIR_Motor_3_GPIO_Port GPIOA
+#define DIR_Motor_4_Pin GPIO_PIN_9
+#define DIR_Motor_4_GPIO_Port GPIOA
+#define PWM_Motor_4_Pin GPIO_PIN_10
+#define PWM_Motor_4_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 

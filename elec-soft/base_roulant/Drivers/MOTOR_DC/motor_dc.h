@@ -40,9 +40,6 @@ typedef struct {
     uint16_t DIR_Pin;
     TIM_HandleTypeDef * TIM;
     uint32_t TIM_Channel;
-    /* Functional configuration */
-    uint8_t duty_cycle;
-    uint8_t direction;
 } Motor_Config;
 
 /**

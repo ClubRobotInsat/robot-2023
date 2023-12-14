@@ -23,10 +23,6 @@ Motor_Config Motor_Init(GPIO_TypeDef  * DIR_Port, uint16_t DIR_Pin, TIM_HandleTy
     motor.TIM = TIM;
     motor.TIM_Channel = TIM_Channel;
 
-    /* Initialize the PWM and direction value*/
-    motor.duty_cycle = 0;
-    motor.direction = MOTOR_DIRECTION_CW;
-
     /* Set the duty cycle = 0 at initialize*/
 	__HAL_TIM_SET_COMPARE(TIM,TIM_Channel,0);
 
@@ -46,11 +42,8 @@ void Motor_Stop(Motor_Config motor){
 
 void Motor_Set_Speed(Motor_Config motor, uint8_t duty_cycle){
 	
-	if ((duty_cycle > 0) || (duty_cycle <= 100)){
-		duty_cycle = duty_cycle - 1;
-		__HAL_TIM_SET_COMPARE(motor.TIM,motor.TIM_Channel,duty_cycle);
-	}
-	else if (duty_cycle == 0){
+	if ((duty_cycle >= 0) || (duty_cycle <= 100)){
+		//duty_cycle = duty_cycle - 1;
 		__HAL_TIM_SET_COMPARE(motor.TIM,motor.TIM_Channel,duty_cycle);
 	}
 	else {
