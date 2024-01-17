@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+#include "Encoder.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -72,7 +73,7 @@ void User_TIMIndexEncoderCallback(TIM_HandleTypeDef *htim);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-    //uint8_t MSG[50] = {'\0'};
+    uint8_t MSG[50] = {'\0'};
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -98,6 +99,14 @@ int main(void)
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
 
+  Encoder_Init(&htim3, &htim4/*, &huart2*/);
+  Encoder_Start_Record();
+  HAL_Delay(5000);
+
+
+  sprintf(MSG, "%d", (int)Encoder_Rigth_Get_Distance());
+  HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
+  Encoder_Start_Record();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -105,16 +114,8 @@ int main(void)
   while (1)
   {
 
-      if(__HAL_TIM_GET_COUNTER(&htim3))
-      {
-          //sprintf(MSG, "%d", (__HAL_TIM_GET_COUNTER(&htim3)));
-          if(__HAL_TIM_GET_COUNTER(&htim3) >= 1023){
-        	  //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_12);
-        	  //__HAL_TIM_SET_COUNTER(&htim3,0);
-              //HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
 
-          }
-      }
+
 
   }
     /* USER CODE END WHILE */
