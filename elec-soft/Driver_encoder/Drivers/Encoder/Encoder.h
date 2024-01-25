@@ -1,23 +1,33 @@
 /**
   ******************************************************************************
   * @file           : Encoder.h
-  * @brief          : Driver contains the functions to use 2 encoders
+  * @brief          : Driver used to control 2 encoders
   * @date			: Jan 17, 2024
   * @author			: TANG Huong Cam
   ******************************************************************************
   * @attention
-  * Necessary configurations :
+  * ***Hardware Connection***
+  *
+  * Left Encoder : (TIM3)
+  * 	A+ : PA6, B+ : PA4, 0+ : PB5
+  * 	V+ : +5V, 0V : GND
+  *
+  * Right Encoder : (TIM4)
+  * 	A+ : PA11, B+ : PB7, 0+ : PA8
+  *     V+ : +5V, 0V : GND
+  *
+  * ***Necessary configurations CUBE IDE:***
   *
   * Timer / TIM3 : Encoder Mode
   * Timer / TIM4 : Encoder Mode
   *
   * GPIO :
-  * 	PB3 : GPIO_EXTI3
+  * 	PB5 : GPIO_EXTI5
   * 	PA8 : GPIO_EXTI8
   *
   * System Core / NVIC :
-  * 	EXTI line3 interrupt 		: true
   *		EXTI line[9:5] interrupts	: true
+  *
   ******************************************************************************
   */
 
@@ -35,11 +45,10 @@
 /**
  * @fn void Encoder_Init(TIM_HandleTypeDef*, TIM_HandleTypeDef*)
  * @brief Initialize the encoders
- *
  * @param Encoder_Left_HTimer3
  * @param Encoder_Right_HTimer4
  */
-void Encoder_Init (TIM_HandleTypeDef * Encoder_Left_HTimer3, TIM_HandleTypeDef * Encoder_Right_HTimer4/*,UART_HandleTypeDef * Uart2*/);
+void Encoder_Init (TIM_HandleTypeDef * Encoder_Left_HTimer3, TIM_HandleTypeDef * Encoder_Right_HTimer4);
 
 /**
  * @fn float Encoder_Left_Get_Distance(void)
@@ -63,6 +72,5 @@ float Encoder_Right_Get_Distance (void);
  *
  */
 void Encoder_Start_Record (void);
-
 
 #endif /* ENCODER_ENCODER_H_ */

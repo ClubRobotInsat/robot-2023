@@ -32,6 +32,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+    uint32_t counter = 0;
+    int turned_round =0;
+    float distance_current =0.0;
 
 /* USER CODE END PD */
 
@@ -73,7 +76,6 @@ void User_TIMIndexEncoderCallback(TIM_HandleTypeDef *htim);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-    uint8_t MSG[50] = {'\0'};
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -99,13 +101,13 @@ int main(void)
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
 
-  Encoder_Init(&htim3, &htim4/*, &huart2*/);
+  Encoder_Init(&htim3, &htim4);
   Encoder_Start_Record();
   HAL_Delay(5000);
 
 
-  sprintf(MSG, "%d", (int)Encoder_Rigth_Get_Distance());
-  HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
+  //sprintf(MSG, "%d", (int)Encoder_Right_Get_Distance());
+  //HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
   Encoder_Start_Record();
   /* USER CODE END 2 */
 
@@ -114,8 +116,9 @@ int main(void)
   while (1)
   {
 
-
-
+	  counter = __HAL_TIM_GET_COUNTER(&htim3);
+	  turned_round = Encoder_Get_Number_Turned_Round();
+	  distance_current = Encoder_Left_Get_Distance();
 
   }
     /* USER CODE END WHILE */
@@ -342,16 +345,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PB3 */
-  GPIO_InitStruct.Pin = GPIO_PIN_3;
+  /*Configure GPIO pin : PB5 */
+  GPIO_InitStruct.Pin = GPIO_PIN_5;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI3_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(EXTI3_IRQn);
-
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
