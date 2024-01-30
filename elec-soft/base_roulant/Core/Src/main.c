@@ -47,6 +47,8 @@
 FDCAN_HandleTypeDef hfdcan1;
 
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim4;
 
 /* USER CODE BEGIN PV */
 
@@ -57,13 +59,18 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_TIM3_Init(void);
+static void MX_TIM4_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+float val_enc_L = 0;
+float val_enc_R = 0;
+float err_r = 0;
+float err_l = 0;
 /* USER CODE END 0 */
 
 /**
@@ -73,10 +80,17 @@ static void MX_TIM2_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	Motor_Config motor1;
-	Motor_Config motor2;
-	Motor_Config motor3;
-	Motor_Config motor4;
+	Motor_Config motor_L;
+	Motor_Config motor_R;
+
+
+	float target = 100;
+	int stop_limit = 4;
+	int slow_down_limit = 10;
+	int vitesse_slow_down = 25;
+	int vitesse_normale = 60;
+
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -99,78 +113,24 @@ int main(void)
   MX_GPIO_Init();
   MX_FDCAN1_Init();
   MX_TIM2_Init();
+  MX_TIM3_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-  motor1 = Motor_Init(DIR_Motor_1_GPIO_Port, DIR_Motor_1_Pin, &htim2, MOTOR_1_TIM_CHANNEL);
-  motor2 = Motor_Init(DIR_Motor_2_GPIO_Port, DIR_Motor_2_Pin, &htim2, MOTOR_2_TIM_CHANNEL);
-  motor3 = Motor_Init(DIR_Motor_3_GPIO_Port, DIR_Motor_3_Pin, &htim2, MOTOR_3_TIM_CHANNEL);
-  motor4 = Motor_Init(DIR_Motor_4_GPIO_Port, DIR_Motor_4_Pin, &htim2, MOTOR_4_TIM_CHANNEL);
+  Encoder_Init(&htim3, &htim4);
 
-  Motor_Start(motor1);
-  Motor_Start(motor2);
-  Motor_Start(motor3);
-  Motor_Start(motor4);
+  motor_L = Motor_Init(DIR_Motor_1_GPIO_Port, DIR_Motor_1_Pin, &htim2, MOTOR_1_TIM_CHANNEL);
+  motor_R = Motor_Init(DIR_Motor_2_GPIO_Port, DIR_Motor_2_Pin, &htim2, MOTOR_2_TIM_CHANNEL);
 
+  Encoder_Start_Record();
+
+  Motor_Start(motor_L);
+  Motor_Start(motor_R);
   HAL_Delay(2000);
-  Motor_Set_Direction(motor1, MOTOR_DIRECTION_CW);
-  Motor_Set_Direction(motor2, MOTOR_DIRECTION_CW);
-  Motor_Set_Direction(motor3, MOTOR_DIRECTION_CW);
-  Motor_Set_Direction(motor4, MOTOR_DIRECTION_CW);
-  Motor_Set_Speed(motor1, 25);
-  Motor_Set_Speed(motor2, 25);
-  Motor_Set_Speed(motor3, 25);
-  Motor_Set_Speed(motor4, 25);
-  HAL_Delay(3000);
-  Motor_Set_Speed(motor1, 0);
-  Motor_Set_Speed(motor2, 0);
-  Motor_Set_Speed(motor3, 0);
-  Motor_Set_Speed(motor4, 0);
-  HAL_Delay(1000);
-  Motor_Set_Direction(motor1, MOTOR_DIRECTION_CCW);
-  Motor_Set_Direction(motor2, MOTOR_DIRECTION_CCW);
-  Motor_Set_Direction(motor3, MOTOR_DIRECTION_CCW);
-  Motor_Set_Direction(motor4, MOTOR_DIRECTION_CCW);
-  Motor_Set_Speed(motor1, 75);
-  Motor_Set_Speed(motor2, 75);
-  Motor_Set_Speed(motor3, 75);
-  Motor_Set_Speed(motor4, 75);
-  HAL_Delay(2000);
-  Motor_Set_Speed(motor1, 0);
-  Motor_Set_Speed(motor2, 0);
-  Motor_Set_Speed(motor3, 0);
-  Motor_Set_Speed(motor4, 0);
-  HAL_Delay(1000);
+  Motor_Set_Direction(motor_L, MOTOR_DIRECTION_CW);
+  Motor_Set_Direction(motor_R, MOTOR_DIRECTION_CW);
+  Motor_Set_Speed(motor_L, vitesse_normale);
+  Motor_Set_Speed(motor_R, vitesse_normale);
 
-  Motor_Set_Direction(motor1, MOTOR_DIRECTION_CCW);
-  Motor_Set_Direction(motor2, MOTOR_DIRECTION_CW);
-  Motor_Set_Direction(motor3, MOTOR_DIRECTION_CCW);
-  Motor_Set_Direction(motor4, MOTOR_DIRECTION_CW);
-  Motor_Set_Speed(motor1, 75);
-  Motor_Set_Speed(motor2, 75);
-  Motor_Set_Speed(motor3, 75);
-  Motor_Set_Speed(motor4, 75);
-  HAL_Delay(2000);
-
-  Motor_Set_Speed(motor1, 0);
-  Motor_Set_Speed(motor2, 0);
-  Motor_Set_Speed(motor3, 0);
-  Motor_Set_Speed(motor4, 0);
-  HAL_Delay(1000);
-
-  Motor_Set_Direction(motor1, MOTOR_DIRECTION_CW);
-  Motor_Set_Direction(motor2, MOTOR_DIRECTION_CCW);
-  Motor_Set_Direction(motor3, MOTOR_DIRECTION_CW);
-  Motor_Set_Direction(motor4, MOTOR_DIRECTION_CCW);
-  Motor_Set_Speed(motor1, 75);
-  Motor_Set_Speed(motor2, 75);
-  Motor_Set_Speed(motor3, 75);
-  Motor_Set_Speed(motor4, 75);
-  HAL_Delay(2000);
-
-  Motor_Set_Speed(motor1, 0);
-  Motor_Set_Speed(motor2, 0);
-  Motor_Set_Speed(motor3, 0);
-  Motor_Set_Speed(motor4, 0);
-  HAL_Delay(1000);
 
   /* USER CODE END 2 */
 
@@ -178,6 +138,52 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
+	val_enc_L = Encoder_Left_Get_Distance();
+	val_enc_R = Encoder_Right_Get_Distance();
+
+	err_l = target + val_enc_L;
+	err_r = target - val_enc_R;
+
+	if(err_l < stop_limit && err_l > -stop_limit )
+	{
+		Motor_Stop(motor_L);
+	}
+	else if(err_l < -stop_limit && err_l > -slow_down_limit)
+	{
+		Motor_Set_Direction(motor_L, MOTOR_DIRECTION_CCW);
+		Motor_Set_Speed(motor_L, vitesse_slow_down);
+	}
+	else if(err_l > stop_limit && err_l < slow_down_limit)
+	{
+		Motor_Set_Direction(motor_L, MOTOR_DIRECTION_CW);
+		Motor_Set_Speed(motor_L, vitesse_slow_down);
+	}
+
+	if(err_r > -stop_limit && err_r < stop_limit)
+	{
+		Motor_Stop(motor_R);
+	}
+
+	else if(err_r < -stop_limit && err_r > -slow_down_limit)
+	{
+		Motor_Set_Direction(motor_R, MOTOR_DIRECTION_CCW);
+		Motor_Set_Speed(motor_R, vitesse_slow_down);
+	}
+	else if(err_r > stop_limit && err_r < slow_down_limit)
+	{
+		Motor_Set_Direction(motor_R, MOTOR_DIRECTION_CW);
+		Motor_Set_Speed(motor_R, vitesse_slow_down);
+	}
+
+	if (err_l < -slow_down_limit && err_r < -slow_down_limit)
+	{
+		Motor_Set_Direction(motor_R, MOTOR_DIRECTION_CCW);
+		Motor_Set_Direction(motor_L, MOTOR_DIRECTION_CCW);
+		Motor_Set_Speed(motor_L, vitesse_normale);
+		Motor_Set_Speed(motor_R, vitesse_normale);
+	}
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -324,18 +330,108 @@ static void MX_TIM2_Init(void)
   {
     Error_Handler();
   }
-  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
-  {
-    Error_Handler();
-  }
   /* USER CODE BEGIN TIM2_Init 2 */
 
   /* USER CODE END TIM2_Init 2 */
   HAL_TIM_MspPostInit(&htim2);
+
+}
+
+/**
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  TIM_Encoder_InitTypeDef sConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 0;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 65535;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
+  sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
+  sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
+  sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
+  sConfig.IC1Filter = 0;
+  sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
+  sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
+  sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
+  sConfig.IC2Filter = 0;
+  if (HAL_TIM_Encoder_Init(&htim3, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+
+  /* USER CODE END TIM3_Init 2 */
+
+}
+
+/**
+  * @brief TIM4 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM4_Init(void)
+{
+
+  /* USER CODE BEGIN TIM4_Init 0 */
+
+  /* USER CODE END TIM4_Init 0 */
+
+  TIM_Encoder_InitTypeDef sConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM4_Init 1 */
+
+  /* USER CODE END TIM4_Init 1 */
+  htim4.Instance = TIM4;
+  htim4.Init.Prescaler = 0;
+  htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim4.Init.Period = 65535;
+  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
+  sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
+  sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
+  sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
+  sConfig.IC1Filter = 0;
+  sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
+  sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
+  sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
+  sConfig.IC2Filter = 0;
+  if (HAL_TIM_Encoder_Init(&htim4, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM4_Init 2 */
+
+  /* USER CODE END TIM4_Init 2 */
 
 }
 
@@ -352,16 +448,33 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, DIR_Motor_1_Pin|DIR_Motor_2_Pin|DIR_Motor_3_Pin|DIR_Motor_4_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, DIR_Motor_1_Pin|DIR_Motor_2_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : DIR_Motor_1_Pin DIR_Motor_2_Pin DIR_Motor_3_Pin DIR_Motor_4_Pin */
-  GPIO_InitStruct.Pin = DIR_Motor_1_Pin|DIR_Motor_2_Pin|DIR_Motor_3_Pin|DIR_Motor_4_Pin;
+  /*Configure GPIO pins : DIR_Motor_1_Pin DIR_Motor_2_Pin */
+  GPIO_InitStruct.Pin = DIR_Motor_1_Pin|DIR_Motor_2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : Index_Encoder_R_Pin */
+  GPIO_InitStruct.Pin = Index_Encoder_R_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(Index_Encoder_R_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : Index_Encoder_L_Pin */
+  GPIO_InitStruct.Pin = Index_Encoder_L_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(Index_Encoder_L_GPIO_Port, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */

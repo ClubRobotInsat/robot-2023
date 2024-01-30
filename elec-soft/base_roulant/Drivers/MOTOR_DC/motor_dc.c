@@ -61,3 +61,14 @@ void Motor_Set_Direction(Motor_Config motor, uint8_t direction){
 	}
 }
 
+void Motor_Toggle_Direction(Motor_Config motor){
+	HAL_GPIO_TogglePin(motor.DIR_Port, motor.DIR_Pin);
+}
+
+uint8_t Motor_Get_Speed(Motor_Config motor){
+	return __HAL_TIM_GET_COMPARE(motor.TIM, motor.TIM_Channel);
+}
+
+uint8_t Motor_Get_Direction(Motor_Config motor){
+	return HAL_GPIO_ReadPin(motor.DIR_Port, motor.DIR_Port);
+}
