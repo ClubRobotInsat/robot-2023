@@ -29,6 +29,7 @@ Afin de faciliter la collaboration, il est conseillé de suivre les quelques con
 - **Créer des branches** : cela permet de travailler sur une fonctionnalité sans impacter le reste du projet.
 - **Commitez souvent** : cela permet de garder une trace de l'évolution du projet et de pouvoir revenir en arrière en cas de problème.
 - **Commitez des choses fonctionnelles** : cela permet de pouvoir revenir à un état fonctionnel du projet en cas de problème.
+- **Mettre à jour les sous-modules**: cela permet de travailler sur la dernière version des sous-modules. `git submodule update --init --recursive --remote`
 
 
 ## Ressources
