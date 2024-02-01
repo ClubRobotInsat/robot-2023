@@ -67,10 +67,7 @@ static void MX_TIM4_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-float val_enc_L = 0;
-float val_enc_R = 0;
-float err_r = 0;
-float err_l = 0;
+
 /* USER CODE END 0 */
 
 /**
@@ -85,7 +82,7 @@ int main(void)
 
 
 	float target = 100;
-	int stop_limit = 4;
+	int stop_limit = 5;
 	int slow_down_limit = 10;
 	int vitesse_slow_down = 25;
 	int vitesse_normale = 60;
@@ -116,11 +113,14 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-  Encoder_Init(&htim3, &htim4);
+
 
   motor_L = Motor_Init(DIR_Motor_1_GPIO_Port, DIR_Motor_1_Pin, &htim2, MOTOR_1_TIM_CHANNEL);
   motor_R = Motor_Init(DIR_Motor_2_GPIO_Port, DIR_Motor_2_Pin, &htim2, MOTOR_2_TIM_CHANNEL);
 
+  Encoder_Init(&htim3, &htim4);
+
+  /*
   Encoder_Start_Record();
 
   Motor_Start(motor_L);
@@ -130,7 +130,7 @@ int main(void)
   Motor_Set_Direction(motor_R, MOTOR_DIRECTION_CW);
   Motor_Set_Speed(motor_L, vitesse_normale);
   Motor_Set_Speed(motor_R, vitesse_normale);
-
+*/
 
   /* USER CODE END 2 */
 
@@ -142,8 +142,7 @@ int main(void)
 	val_enc_L = Encoder_Left_Get_Distance();
 	val_enc_R = Encoder_Right_Get_Distance();
 
-	err_l = target + val_enc_L;
-	err_r = target - val_enc_R;
+
 
 	if(err_l < stop_limit && err_l > -stop_limit )
 	{
