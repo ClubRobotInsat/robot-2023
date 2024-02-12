@@ -37,7 +37,7 @@ void Motor_Start(Motor_Config motor){
 }
 
 void Motor_Stop(Motor_Config motor){
-	HAL_TIM_PWM_Stop(motor.TIM, motor.TIM_Channel);
+	__HAL_TIM_SET_COMPARE(motor.TIM,motor.TIM_Channel,0);
 }
 
 void Motor_Set_Speed(Motor_Config motor, uint8_t duty_cycle){

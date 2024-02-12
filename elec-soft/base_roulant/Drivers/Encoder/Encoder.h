@@ -8,11 +8,11 @@
   * @attention
   * ***Hardware Connection***
   *
-  * Left Encoder : (TIM3)
+  * Encoder 1 : (TIM3)
   * 	A+ : PA6, B+ : PA4, 0+ : PB5
   * 	V+ : +5V, 0V : GND
   *
-  * Right Encoder : (TIM4)
+  * Encoder 2 : (TIM4)
   * 	A+ : PA11, B+ : PB7, 0+ : PA8
   *     V+ : +5V, 0V : GND
   *

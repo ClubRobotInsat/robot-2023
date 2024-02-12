@@ -33,6 +33,7 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 #include "MOTOR_DC/motor_dc.h"
 #include "Encoder/Encoder.h"
+#include "MOVEMENT/movement.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -66,22 +67,22 @@ void Error_Handler(void);
 #define PWM_Motor_2_GPIO_Port GPIOA
 #define DIR_Motor_1_Pin GPIO_PIN_4
 #define DIR_Motor_1_GPIO_Port GPIOA
-#define Aplus_L_Pin GPIO_PIN_6
-#define Aplus_L_GPIO_Port GPIOA
-#define Bplus_L_Pin GPIO_PIN_7
-#define Bplus_L_GPIO_Port GPIOA
-#define Index_Encoder_R_Pin GPIO_PIN_8
-#define Index_Encoder_R_GPIO_Port GPIOA
-#define Index_Encoder_R_EXTI_IRQn EXTI9_5_IRQn
+#define Aplus_1_Pin GPIO_PIN_6
+#define Aplus_1_GPIO_Port GPIOA
+#define Bplus_1_Pin GPIO_PIN_7
+#define Bplus_1_GPIO_Port GPIOA
+#define Index_Encoder_2_Pin GPIO_PIN_8
+#define Index_Encoder_2_GPIO_Port GPIOA
+#define Index_Encoder_2_EXTI_IRQn EXTI9_5_IRQn
 #define DIR_Motor_2_Pin GPIO_PIN_9
 #define DIR_Motor_2_GPIO_Port GPIOA
-#define Index_Encoder_L_Pin GPIO_PIN_5
-#define Index_Encoder_L_GPIO_Port GPIOB
-#define Index_Encoder_L_EXTI_IRQn EXTI9_5_IRQn
-#define Aplus_R_Pin GPIO_PIN_6
-#define Aplus_R_GPIO_Port GPIOB
-#define Bplus_R_Pin GPIO_PIN_7
-#define Bplus_R_GPIO_Port GPIOB
+#define Index_Encoder_1_Pin GPIO_PIN_5
+#define Index_Encoder_1_GPIO_Port GPIOB
+#define Index_Encoder_1_EXTI_IRQn EXTI9_5_IRQn
+#define Aplus_2_Pin GPIO_PIN_6
+#define Aplus_2_GPIO_Port GPIOB
+#define Bplus_2_Pin GPIO_PIN_7
+#define Bplus_2_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

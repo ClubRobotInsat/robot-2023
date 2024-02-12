@@ -33,8 +33,6 @@
 /* USER CODE BEGIN PD */
 #define MOTOR_1_TIM_CHANNEL TIM_CHANNEL_1
 #define MOTOR_2_TIM_CHANNEL TIM_CHANNEL_2
-#define MOTOR_3_TIM_CHANNEL TIM_CHANNEL_3
-#define MOTOR_4_TIM_CHANNEL TIM_CHANNEL_4
 
 /* USER CODE END PD */
 
@@ -67,7 +65,8 @@ static void MX_TIM4_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+int L;
+int R;
 /* USER CODE END 0 */
 
 /**
@@ -80,12 +79,6 @@ int main(void)
 	Motor_Config motor_L;
 	Motor_Config motor_R;
 
-
-	float target = 100;
-	int stop_limit = 5;
-	int slow_down_limit = 10;
-	int vitesse_slow_down = 25;
-	int vitesse_normale = 60;
 
 
   /* USER CODE END 1 */
@@ -120,7 +113,7 @@ int main(void)
 
   Encoder_Init(&htim3, &htim4);
 
-  /*
+/*
   Encoder_Start_Record();
 
   Motor_Start(motor_L);
@@ -128,60 +121,28 @@ int main(void)
   HAL_Delay(2000);
   Motor_Set_Direction(motor_L, MOTOR_DIRECTION_CW);
   Motor_Set_Direction(motor_R, MOTOR_DIRECTION_CW);
-  Motor_Set_Speed(motor_L, vitesse_normale);
-  Motor_Set_Speed(motor_R, vitesse_normale);
+  Motor_Set_Speed(motor_L, 60);
+  Motor_Set_Speed(motor_R, 60);
+  HAL_Delay(2000);
+  Motor_Stop(motor_L);
+  Motor_Stop(motor_R);
 */
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  Movement_Init(motor_R, motor_L, &htim3, &htim4);
+
+
+  Movement_Start(100);
+
+
   while (1)
   {
-
-	val_enc_L = Encoder_Left_Get_Distance();
-	val_enc_R = Encoder_Right_Get_Distance();
-
-
-
-	if(err_l < stop_limit && err_l > -stop_limit )
-	{
-		Motor_Stop(motor_L);
-	}
-	else if(err_l < -stop_limit && err_l > -slow_down_limit)
-	{
-		Motor_Set_Direction(motor_L, MOTOR_DIRECTION_CCW);
-		Motor_Set_Speed(motor_L, vitesse_slow_down);
-	}
-	else if(err_l > stop_limit && err_l < slow_down_limit)
-	{
-		Motor_Set_Direction(motor_L, MOTOR_DIRECTION_CW);
-		Motor_Set_Speed(motor_L, vitesse_slow_down);
-	}
-
-	if(err_r > -stop_limit && err_r < stop_limit)
-	{
-		Motor_Stop(motor_R);
-	}
-
-	else if(err_r < -stop_limit && err_r > -slow_down_limit)
-	{
-		Motor_Set_Direction(motor_R, MOTOR_DIRECTION_CCW);
-		Motor_Set_Speed(motor_R, vitesse_slow_down);
-	}
-	else if(err_r > stop_limit && err_r < slow_down_limit)
-	{
-		Motor_Set_Direction(motor_R, MOTOR_DIRECTION_CW);
-		Motor_Set_Speed(motor_R, vitesse_slow_down);
-	}
-
-	if (err_l < -slow_down_limit && err_r < -slow_down_limit)
-	{
-		Motor_Set_Direction(motor_R, MOTOR_DIRECTION_CCW);
-		Motor_Set_Direction(motor_L, MOTOR_DIRECTION_CCW);
-		Motor_Set_Speed(motor_L, vitesse_normale);
-		Motor_Set_Speed(motor_R, vitesse_normale);
-	}
+	  Movement_Regulation();
+	  L = Encoder_Left_Get_Distance();
+	  R = Encoder_Right_Get_Distance();
 
     /* USER CODE END WHILE */
 
@@ -459,17 +420,17 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : Index_Encoder_R_Pin */
-  GPIO_InitStruct.Pin = Index_Encoder_R_Pin;
+  /*Configure GPIO pin : Index_Encoder_2_Pin */
+  GPIO_InitStruct.Pin = Index_Encoder_2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(Index_Encoder_R_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(Index_Encoder_2_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : Index_Encoder_L_Pin */
-  GPIO_InitStruct.Pin = Index_Encoder_L_Pin;
+  /*Configure GPIO pin : Index_Encoder_1_Pin */
+  GPIO_InitStruct.Pin = Index_Encoder_1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(Index_Encoder_L_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(Index_Encoder_1_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
