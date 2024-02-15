@@ -359,7 +359,7 @@ void  HKL_rotate(Herkulex_Struct * servos, uint8_t servoID, uint16_t speed, uint
 
 	if (speed < 0) {
 	    goalSpeedSign = (-1)* speed ;
-	    goalSpeedSign |= 0x4000;  //bit n�14
+	    goalSpeedSign |= 0x4000;  //bit n14
 	} else {
 		goalSpeedSign = speed;
 	}
@@ -379,7 +379,7 @@ void  HKL_rotate(Herkulex_Struct * servos, uint8_t servoID, uint16_t speed, uint
 		iRed=1;
 		break;
 	}
-	uint8_t LedValue = iGreen*4 + iBlue*8 + iRed*16;	// Assign led value
+	uint8_t LedValue = iGreen*4 + iBlue*8 + iRed*16;		// Assign led value
 
 	servos->msg.playTime = (uint8_t)((float)pTime/11.2);			// Execution time
 

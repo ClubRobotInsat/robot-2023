@@ -92,6 +92,11 @@ int main(void)
   HKL_begin(&servos, &huart1);
   HKL_reboot(&servos, 7);
   HKL_init(&servos);
+
+  HKL_moveOne(&servos, 7, 512, 1000, 2);
+  HAL_Delay(2000);
+  HKL_moveOne(&servos, 7, 0, 1000, 2);
+  HAL_Delay(2000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
