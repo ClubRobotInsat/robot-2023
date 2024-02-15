@@ -111,39 +111,42 @@ int main(void)
   motor_L = Motor_Init(DIR_Motor_1_GPIO_Port, DIR_Motor_1_Pin, &htim2, MOTOR_1_TIM_CHANNEL);
   motor_R = Motor_Init(DIR_Motor_2_GPIO_Port, DIR_Motor_2_Pin, &htim2, MOTOR_2_TIM_CHANNEL);
 
-  Encoder_Init(&htim3, &htim4);
+  //Encoder_Init(&htim3, &htim4);
 
-/*
-  Encoder_Start_Record();
 
-  Motor_Start(motor_L);
-  Motor_Start(motor_R);
-  HAL_Delay(2000);
-  Motor_Set_Direction(motor_L, MOTOR_DIRECTION_CW);
-  Motor_Set_Direction(motor_R, MOTOR_DIRECTION_CW);
-  Motor_Set_Speed(motor_L, 60);
-  Motor_Set_Speed(motor_R, 60);
-  HAL_Delay(2000);
-  Motor_Stop(motor_L);
-  Motor_Stop(motor_R);
-*/
+  //Encoder_Start_Record();
+
+
+
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  Movement_Init(motor_R, motor_L, &htim3, &htim4);
+  //Movement_Init(motor_R, motor_L, &htim3, &htim4);
 
 
-  Movement_Start(100);
+  //Movement_Start(100);
 
 
   while (1)
   {
+	  /*
 	  Movement_Regulation();
 	  L = Encoder_Left_Get_Distance();
 	  R = Encoder_Right_Get_Distance();
-
+	   */
+	  Motor_Start(motor_L);
+	  Motor_Start(motor_R);
+	  HAL_Delay(2000);
+	  Motor_Set_Direction(motor_L, MOTOR_DIRECTION_CW);
+	  Motor_Set_Direction(motor_R, MOTOR_DIRECTION_CW);
+	  Motor_Set_Speed(motor_L, 60);
+	  Motor_Set_Speed(motor_R, 60);
+	  HAL_Delay(2000);
+	  Motor_Stop(motor_L);
+	  Motor_Stop(motor_R);
+	  HAL_Delay(500);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

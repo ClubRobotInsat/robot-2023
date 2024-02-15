@@ -70,5 +70,5 @@ uint8_t Motor_Get_Speed(Motor_Config motor){
 }
 
 uint8_t Motor_Get_Direction(Motor_Config motor){
-	return HAL_GPIO_ReadPin(motor.DIR_Port, motor.DIR_Port);
+	return HAL_GPIO_ReadPin(motor.DIR_Port, motor.DIR_Pin);
 }
