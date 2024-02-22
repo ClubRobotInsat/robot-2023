@@ -344,24 +344,26 @@ void  HKL_moveOne(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal, uint
 	HKL_sendData(servos);
 }
 
-void  HKL_rotate(Herkulex_Struct * servos, uint8_t servoID, uint16_t speed, uint16_t pTime, uint8_t iLed){
-	uint8_t goalSpeedSign;
+void  HKL_rotate(Herkulex_Struct * servos, uint8_t servoID, int16_t speed, int16_t pTime, uint8_t iLed){
+	uint16_t goalSpeedSign;
 	uint8_t speedGoalLSB; 		       // MSB speedGoal
 	uint8_t speedGoalMSB;
 	uint8_t iBlue=0;
 	uint8_t iGreen=0;
 	uint8_t iRed=0;
 
-	if (speed > 1023 || speed < 0) return;            // goal not correct
-	if ((pTime <0) || (pTime > 2856)) return;		// execution time not correct
+	if (speed > 1023 || speed < -1023) return;            // goal not correct
+	if ((pTime < -1) || (pTime > 2856)) return;		// execution time not correct
 
-
-
-	if (speed < 0) {
-	    goalSpeedSign = (-1)* speed ;
-	    goalSpeedSign |= 0x4000;  //bit n14
+	if (pTime == -1) {
+		goalSpeedSign = 0x4000;
 	} else {
-		goalSpeedSign = speed;
+		if (speed < 0) {
+			    goalSpeedSign = (-1) * speed ;
+			    goalSpeedSign |= 0x4000;  //bit n14
+		} else {
+			goalSpeedSign = speed;
+		}
 	}
 	speedGoalLSB=goalSpeedSign & 0X00FF;
 	speedGoalMSB=(goalSpeedSign & 0xFF00) >> 8;

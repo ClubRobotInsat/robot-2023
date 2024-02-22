@@ -166,7 +166,7 @@ void  HKL_moveSpeedAll(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal,
 void  HKL_moveAllAngle(Herkulex_Struct * servos, uint8_t servoID, float angle, uint8_t iLed);
 void  HKL_actionAll(Herkulex_Struct * servos, uint8_t pTime);
 
-void  HKL_rotate(Herkulex_Struct * servos, uint8_t servoID, uint16_t speed, uint16_t pTime, uint8_t iLed);
+void  HKL_rotate(Herkulex_Struct * servos, uint8_t servoID, int16_t speed, int16_t pTime, uint8_t iLed);
 void  HKL_moveOne(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal, uint16_t pTime, uint8_t iLed);
 void  HKL_moveOneAngle(Herkulex_Struct * servos, uint8_t servoID, float angle, uint16_t pTime, uint8_t iLed);
 
