@@ -4,6 +4,12 @@
 
 # Setting of CubeIDE
 */.settings/
+*/*.launch
+
+# VSCode setting and metadata files
+*/.vs/
+*/.vscode/
+
 
 # Projects files
 */.cproject
@@ -12,3 +18,9 @@
 
 # Debug files
 */Debug
+
+# Makefile
+*/cmake/
+*/CmakeLists.txt
+*/CMakePresets.json
+*/vcpkg-configuration.json

@@ -51,134 +51,205 @@ extern "C" {
 /* Includes */
 #include "stm32g4xx_hal.h"
 
+/* HERKULEX_LED - See Manual p29 */
+#define HERKULEX_LED_GREEN 	 0x01
+#define HERKULEX_LED_BLUE     0x02
+#define HERKULEX_LED_CYAN     0x03
+#define HERKULEX_LED_RED    	 0x04
+#define HERKULEX_LED_GREEN2 	 0x05
+#define HERKULEX_LED_PINK     0x06
+#define HERKULEX_LED_WHITE    0x07
 
-/* Exported define --------------------------*/
-#define NBR_SERVOS	 10				// Number of servos to manipulate simultaneously 	<---- change this for more servos!
+/* HERKULEX_STATUS_ERROR - See Manual p39 */
+#define HERKULEX_STATUS_OK					 0x00
+#define HERKULEX_ERROR_INPUT_VOLTAGE 		 0x01
+#define HERKULEX_ERROR_POS_LIMIT			 0x02
+#define HERKULEX_ERROR_TEMPERATURE_LIMIT	 0x04
+#define HERKULEX_ERROR_INVALID_PKT			 0x08
+#define HERKULEX_ERROR_OVERLOAD			 0x10
+#define HERKULEX_ERROR_DRIVER_FAULT    	0x20
+#define HERKULEX_ERROR_EEPREG_DISTORT	 	0x40
 
-#define DATA_SIZE	 30				// Size of buffer for input data
-
-#define DATA_ACTION_ALL  	 5*NBR_SERVOS	// Size of package to manipulate all motors simultaneously
-
-
-/* SERVO HERKULEX COMMAND - See Manual p40 */
-#define HEEPWRITE    0x01 	//Rom (EEP) write
-#define HEEPREAD     0x02 	//Rom (EEP) read
-#define HRAMWRITE	 0x03 	//Ram write
-#define HRAMREAD	 0x04 	//Ram read
-#define HIJOG		 0x05 	//Write n servo with different timing
-#define HSJOG		 0x06 	//Write n servo with same time
-#define HSTAT	 	 0x07 	//Read error
-#define HROLLBACK	 0x08 	//Back to factory value
-#define HREBOOT	 	 0x09 	//Reboot
-
-/* HERKULEX LED - See Manual p29 */
-#define LED_GREEN 	 0x01
-#define LED_BLUE     0x02
-#define LED_CYAN     0x03
-#define LED_RED    	 0x04
-#define LED_GREEN2 	 0x05
-#define LED_PINK     0x06
-#define LED_WHITE    0x07
-
-/* HERKULEX STATUS ERROR - See Manual p39 */
-#define H_STATUS_OK					 0x00
-#define H_ERROR_INPUT_VOLTAGE 		 0x01
-#define H_ERROR_POS_LIMIT			 0x02
-#define H_ERROR_TEMPERATURE_LIMIT	 0x04
-#define H_ERROR_INVALID_PKT			 0x08
-#define H_ERROR_OVERLOAD			 0x10
-#define H_ERROR_DRIVER_FAULT    	0x20
-#define H_ERROR_EEPREG_DISTORT	 	0x40
-
-/* HERKULEX Broadcast Servo ID */
-#define BROADCAST_ID	0xFE
+/* HERKULEX_BROADCAST_ID */
+#define HERKULEX_BROADCAST_ID	0xFE
 
 
-/* HERKULEX Ack mode */
-#define ACK_No_Reply		0x00
-#define ACK_Reply_Read		0x01
-#define ACK_Reply_Always	0x02
+/* HERKULEX_ACK_MODE */
+#define HERKULEX_ACK_NO_REPLY		0x00
+#define HERKULEX_ACK_REPLY_READ		0x01
+#define HERKULEX_ACK_REPLY_ALWAYS	0x02
 
-typedef struct {
-	uint8_t pSize;		/* Packet Size */
-	uint8_t pID;
-	uint8_t cmd;
+#define HERKULEX_NBR_SERVOS	 		10					// Number of servos to manipulate simultaneously 	<---- change this for more servos!
+#define HERKULEX_DATA_ACTION_ALL  	 5*HERKULEX_NBR_SERVOS		// Size of package to manipulate all motors simultaneously
+#define HERKULEX_PACKAGE_SIZE		 HERKULEX_DATA_ACTION_ALL+8	// Size of package to send to servos
 
-	uint8_t lenghtString;
-
-	uint8_t ck1;		/* Check Sum1 */
-	uint8_t ck2;		/* Check Sum2 */
-
-
-	uint8_t XOR;		/* Use for Check Sum */
-	uint8_t playTime; 	/* Execution time*/
-
-	uint8_t data[DATA_SIZE];		/* Input data to servos*/
-	uint8_t dataEx[DATA_ACTION_ALL+8];
-
-	uint8_t conta;		/* counter for simultaneous actions */
-	uint8_t moveData[DATA_ACTION_ALL];	/* data for simultaneous actions*/
-
-} Herkulex_Message_Struct;
+/* ------------------------------------------------------------------------------------
+							Exported types
+---------------------------------------------------------------------------------------*/
 
 /**
  * @struct Herkulex_Struct
- * @brief  Structure to manipulate up to NBR_SERVOS
+ * @brief  Structure to manipulate up to NBR_SERVOS on a serial link
  *
  */
 typedef struct {
-	UART_HandleTypeDef * huart;	/* Handle for UART connection */
-	Herkulex_Message_Struct msg;
+	UART_HandleTypeDef * huart;		/* Handle for UART connection */
+	uint8_t package[HERKULEX_PACKAGE_SIZE];	/* Package to send to servos */
+	//uint8_t conta;		/* counter for simultaneous actions */
+	//uint8_t moveData[DATA_ACTION_ALL];	/* data for simultaneous actions*/
 } Herkulex_Struct;
 
 
+/****************************************************************************************************************
+ *
+ *
+ * 	API functions
+ *
+ *
+ ****************************************************************************************************************/
 
-/* Exported functions --------------------------*/
+/*	****************************************************************************************************************
+	Functions for Set up the servos
+*************************************************************************************************************** */
+
 /**
- * @fn void HKL_begin(Herkulex_Struct*, UART_HandleTypeDef*)
+ * @fn void Herkulex_initCommunication(Herkulex_Struct*, UART_HandleTypeDef*)
  * @brief Setup a UART link to Herkulex
  * 
- * @param servos Herkulex_Struct handler
+ * @param servos Herkulex_Struct Handler for all servos on a serial link
  * @param huart UART handler
  */
-void HKL_begin(Herkulex_Struct * servos, UART_HandleTypeDef * huart);
+void Herkulex_initCommunication(Herkulex_Struct * servos, UART_HandleTypeDef * huart);
 
 /**
- * @fn void HKL_init(Herkulex_Struct*)
- * @brief Initialize all motors
+ * @fn void Herkulex_init(Herkulex_Struct*)
+ * @brief Initialize all motors, make sure to reboot each servo with their proper ID before initialize
  *
- * @param servos
+ * @param servos Herkulex_Struct Handler for all servos on a serial link
  */
-void  HKL_init(Herkulex_Struct * servos);
-void  HKL_ACK(Herkulex_Struct * servos, uint8_t valueACK);
-void  HKL_clearError(Herkulex_Struct * servos, uint8_t servoID);
-uint16_t  HKL_stat(Herkulex_Struct * servos, uint8_t servoID);
+void  Herkulex_initServos(Herkulex_Struct * servos);
 
-uint8_t  HKL_model(Herkulex_Struct * servos);
-void  HKL_set_ID(Herkulex_Struct * servos, uint8_t ID_Old, uint8_t ID_New);
+/**
+ * @brief Reboot a servo.
+ * 
+ * @param servos Herkulex_Struct Handler for all servos on a serial link
+ * @param servoID ID of the servo to reboot
+ */
+void  Herkulex_reboot(Herkulex_Struct * servos, uint8_t servoID);
+
+/**
+ * @fn void Herkulex_setACK(Herkulex_Struct*, uint8_t)
+ * @brief Set ACK policy for servo on RAM registry
+ *
+ * @param servos Herkulex_Struct Handler for all servos on a serial link
+ * @param valueACK ACK policy to set, can be one on the list: HERKULEX_ACK_MODE
+ */
+void  Herkulex_setACK(Herkulex_Struct * servos, uint8_t valueACK);
+
+/**
+ * @brief Clear error of a servo
+ * 
+ * @param servos Herkulex_Struct Handler for all servos on a serial link
+ * @param servoID ID of the servo to clear error
+ */
+void  Herkulex_clearError(Herkulex_Struct * servos, uint8_t servoID);
+
+/*	****************************************************************************************************************
+	Functions for Move on the servos
+*************************************************************************************************************** */
+
+/**
+ * @fn void Herkulex_torqueON(Herkulex_Struct*, uint8_t)
+ * @brief Turn on the torque of a servo. See manual p28 for more details.
+ * 
+ * @param servos Herkulex_Struct Handler for all servos on a serial link
+ * @param servoID ID of the servo to turn on the torque
+ */
+void  Herkulex_torqueON(Herkulex_Struct * servos, uint8_t servoID);
+
+/**
+ * @fn void Herkulex_torqueOFF(Herkulex_Struct*, uint8_t)
+ * @brief Turn off the torque of a servo. See manual p28 for more details.
+ * 
+ * @param servos Herkulex_Struct Handler for all servos on a serial link
+ * @param servoID ID of the servo to turn off the torque
+ */
+void  Herkulex_torqueOFF(Herkulex_Struct * servos, uint8_t servoID);
+
+/**
+ * @fn void Herkulex_torqueBREAK(Herkulex_Struct*, uint8_t)
+ * @brief Break the torque of a servo. See manual p28 for more details.
+ * 
+ * @param servos Herkulex_Struct Handler for all servos on a serial link
+ * @param servoID ID of the servo to break the torque
+ */
+void  Herkulex_torqueBREAK(Herkulex_Struct * servos, uint8_t servoID);
+
+/**
+ * @fn void Herkulex_moveSpeed(Herkulex_Struct*, uint8_t, uint16_t, uint16_t, uint8_t)
+ * @brief Move a servo to a position with a speed
+ * 
+ * @param servos Herkulex_Struct Handler for all servos on a serial link
+ * @param servoID ID of the servo to move
+ * @param Goal Position to move, can be from 0 to 1023
+ * @param pTime Time to move in ms, can be from 0 to 2856
+ * @param iLed LED to turn on, can be one on the list: HERKULEX_LED
+ */
+void  Herkulex_moveOne(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal, uint16_t pTime, uint8_t iLed);
+
+/**
+ * @fn void Herkulex_rotate(Herkulex_Struct*, uint8_t, int16_t, uint16_t, uint8_t)
+ * @brief Rotate a servo with a speed
+ * 
+ * @param servos Herkulex_Struct Handler for all servos on a serial link
+ * @param servoID ID of the servo to rotate
+ * @param speed Speed to rotate, can be from -1023 to 1023
+ * @param pTime Time to rotate in ms, can be from 0 to 2856
+ * @param iLed LED to turn on, can be one on the list: HERKULEX_LED
+ */
+void  Herkulex_rotateOne(Herkulex_Struct * servos, uint8_t servoID, int16_t speed, uint16_t pTime, uint8_t iLed);
+
+/*	****************************************************************************************************************
+	Functions for Configure the servos
+*************************************************************************************************************** */
+
+/**
+ * @brief Get status of a servo
+ * 
+ * @param servos Herkulex_Struct Handler for all servos on a serial link
+ * @param servoID ID of the servo to get status
+ * @return uint16_t Status of the servo. 
+ * 			| Byte 1 	   | Byte 0 	   |
+ * 			| Status Error | Status Detail |
+ * Check the manual at page 39 for more details.
+ */
+uint16_t  Herkulex_getStatus(Herkulex_Struct * servos, uint8_t servoID);
+
+// TODO
+uint8_t  Herkulex_model(Herkulex_Struct * servos);
+
+// TODO
+void  Herkulex_set_ID(Herkulex_Struct * servos, uint8_t ID_Old, uint8_t ID_New);
 
 
-void  HKL_torqueON(Herkulex_Struct * servos, uint8_t servoID);
-void  HKL_torqueOFF(Herkulex_Struct * servos, uint8_t servoID);
 
-void  HKL_moveAll(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal, uint8_t iLed);
-void  HKL_moveSpeedAll(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal, uint8_t iLed);
-void  HKL_moveAllAngle(Herkulex_Struct * servos, uint8_t servoID, float angle, uint8_t iLed);
-void  HKL_actionAll(Herkulex_Struct * servos, uint8_t pTime);
+void  Herkulex_moveAll(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal, uint8_t iLed);
+void  Herkulex_moveSpeedAll(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal, uint8_t iLed);
+void  Herkulex_moveAllAngle(Herkulex_Struct * servos, uint8_t servoID, float angle, uint8_t iLed);
+void  Herkulex_actionAll(Herkulex_Struct * servos, uint8_t pTime);
 
-void  HKL_rotate(Herkulex_Struct * servos, uint8_t servoID, int16_t speed, int16_t pTime, uint8_t iLed);
-void  HKL_moveOne(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal, uint16_t pTime, uint8_t iLed);
-void  HKL_moveOneAngle(Herkulex_Struct * servos, uint8_t servoID, float angle, uint16_t pTime, uint8_t iLed);
 
-uint16_t   HKL_getPosition(Herkulex_Struct * servos, uint8_t servoID);
-float HKL_getAngle(Herkulex_Struct * servos, uint8_t servoID);
-uint16_t   HKL_getSpeed(Herkulex_Struct * servos, uint8_t servoID);
 
-void  HKL_reboot(Herkulex_Struct * servos, uint8_t servoID);
-void  HKL_setLed(Herkulex_Struct * servos,uint8_t servoID, uint8_t valueLed);
+void  Herkulex_moveOneAngle(Herkulex_Struct * servos, uint8_t servoID, float angle, uint16_t pTime, uint8_t iLed);
 
-void  HKL_writeRegistryRAM(Herkulex_Struct * servos, uint8_t servoID, uint8_t address, uint8_t writeByte);
-void  HKL_writeRegistryEEP(Herkulex_Struct * servos, uint8_t servoID, uint8_t address, uint8_t writeByte);
+uint16_t   Herkulex_getPosition(Herkulex_Struct * servos, uint8_t servoID);
+float Herkulex_getAngle(Herkulex_Struct * servos, uint8_t servoID);
+uint16_t   Herkulex_getSpeed(Herkulex_Struct * servos, uint8_t servoID);
+
+void  Herkulex_setLed(Herkulex_Struct * servos,uint8_t servoID, uint8_t valueLed);
+
+void  Herkulex_writeRegistryRAM(Herkulex_Struct * servos, uint8_t servoID, uint8_t address, uint8_t writeByte);
+void  Herkulex_writeRegistryEEP(Herkulex_Struct * servos, uint8_t servoID, uint8_t address, uint8_t writeByte);
 
 
 #ifdef __cplusplus

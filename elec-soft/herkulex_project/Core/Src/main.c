@@ -31,6 +31,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define MOTOR_1 2
+#define MOTOR_2 11
+#define MOTOR_3 1
+
 
 /* USER CODE END PD */
 
@@ -40,7 +44,11 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+TIM_HandleTypeDef htim2;
+
 UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_usart1_rx;
 
 /* USER CODE BEGIN PV */
 
@@ -49,14 +57,17 @@ UART_HandleTypeDef huart1;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_USART2_UART_Init(void);
+static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+uint16_t error = 0;
 /* USER CODE END 0 */
 
 /**
@@ -67,6 +78,7 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	Herkulex_Struct servos;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -87,18 +99,105 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART1_UART_Init();
+  MX_USART2_UART_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  HKL_begin(&servos, &huart1);
-  HKL_reboot(&servos, 7);
-  HKL_init(&servos);
-  /*
-  HKL_moveOne(&servos, 7, 512, 1000, 2);
-  HAL_Delay(2000);
-  HKL_moveOne(&servos, 7, 0, 1000, 2);
-  HAL_Delay(2000);
-  */
-  HKL_rotate(&servos, 7, 512, -1, 1);
+  Herkulex_initCommunication(&servos, &huart1);
+  Herkulex_reboot(&servos, 2);
+  Herkulex_reboot(&servos, 11);
+  Herkulex_reboot(&servos, 1);
+  Herkulex_initServos(&servos);
+
+
+  /*Pos Init */
+  __HAL_TIM_SET_COMPARE(&htim2, 0, 500);
+  HAL_TIM_PWM_Start(&htim2, 0);
+
+  Herkulex_moveOne(&servos, MOTOR_2, 900, 500, HERKULEX_LED_GREEN);
+  HAL_Delay(500);
+
+  Herkulex_moveOne(&servos, MOTOR_1, 150, 500, HERKULEX_LED_GREEN);
+  HAL_Delay(500);
+
+  Herkulex_moveOne(&servos, MOTOR_3, 700, 500, HERKULEX_LED_GREEN);
+  HAL_Delay(1000);
+
+  /* Pos Attrape */
+
+  Herkulex_moveOne(&servos, MOTOR_1, 270, 500, HERKULEX_LED_GREEN);
+  HAL_Delay(500);
+
+  Herkulex_moveOne(&servos, MOTOR_2, 580, 500, HERKULEX_LED_GREEN);
+  HAL_Delay(500);
+
+  Herkulex_moveOne(&servos, MOTOR_3, 650, 500, HERKULEX_LED_GREEN);
+  HAL_Delay(1000);
+
+  __HAL_TIM_SET_COMPARE(&htim2, 0, 900);
+  HAL_Delay(1000);
+  __HAL_TIM_SET_COMPARE(&htim2, 0, 500);
+  HAL_Delay(1000);
+  /* Pos Pose */
+
+  Herkulex_moveOne(&servos, MOTOR_2, 990, 500, HERKULEX_LED_GREEN);
+  HAL_Delay(500);
+
+  Herkulex_moveOne(&servos, MOTOR_1, 180, 500, HERKULEX_LED_GREEN);
+  HAL_Delay(500);
+
+  Herkulex_moveOne(&servos, MOTOR_3, 650, 500, HERKULEX_LED_GREEN);
+  HAL_Delay(500);
+
+  Herkulex_moveOne(&servos, MOTOR_2, 950, 500, HERKULEX_LED_GREEN);
+  HAL_Delay(500);
+
+  __HAL_TIM_SET_COMPARE(&htim2, 0, 900);
+  HAL_Delay(500);
+
+  /* Pos Attrape */
+
+    Herkulex_moveOne(&servos, MOTOR_1, 270, 500, HERKULEX_LED_GREEN);
+    HAL_Delay(500);
+
+    Herkulex_moveOne(&servos, MOTOR_2, 580, 500, HERKULEX_LED_GREEN);
+    HAL_Delay(500);
+
+    Herkulex_moveOne(&servos, MOTOR_3, 650, 500, HERKULEX_LED_GREEN);
+    HAL_Delay(1000);
+
+    __HAL_TIM_SET_COMPARE(&htim2, 0, 900);
+    HAL_Delay(1000);
+    __HAL_TIM_SET_COMPARE(&htim2, 0, 500);
+    HAL_Delay(1000);
+    /* Pos Pose */
+
+    Herkulex_moveOne(&servos, MOTOR_2, 990, 500, HERKULEX_LED_GREEN);
+    HAL_Delay(500);
+
+    Herkulex_moveOne(&servos, MOTOR_1, 180, 500, HERKULEX_LED_GREEN);
+    HAL_Delay(500);
+
+    Herkulex_moveOne(&servos, MOTOR_3, 650, 500, HERKULEX_LED_GREEN);
+    HAL_Delay(500);
+
+    Herkulex_moveOne(&servos, MOTOR_2, 950, 500, HERKULEX_LED_GREEN);
+    HAL_Delay(500);
+
+    __HAL_TIM_SET_COMPARE(&htim2, 0, 900);
+/*
+  Herkulex_moveOne(&servos, MOTOR_2, 850, 500, HERKULEX_LED_GREEN);
+  HAL_Delay(500);*/
+
+  Herkulex_torqueOFF(&servos, 2);
+  Herkulex_torqueOFF(&servos, 11);
+  Herkulex_torqueOFF(&servos, 1);
+  //Herkulex_moveOne(&servos, 2, 512, 1000, HERKULEX_LED_GREEN);
+  //HAL_Delay(2000);
+  //Herkulex_moveOne(&servos, 2, 1024, 1000, HERKULEX_LED_GREEN);
+  //HAL_Delay(2000);
+  //Herkulex_rotateOne(&servos, 7, 512, 0, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -153,6 +252,65 @@ void SystemClock_Config(void)
 }
 
 /**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void)
+{
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 15;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 9999;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM2_Init 2 */
+
+  /* USER CODE END TIM2_Init 2 */
+  HAL_TIM_MspPostInit(&htim2);
+
+}
+
+/**
   * @brief USART1 Initialization Function
   * @param None
   * @retval None
@@ -197,6 +355,71 @@ static void MX_USART1_UART_Init(void)
   /* USER CODE BEGIN USART1_Init 2 */
 
   /* USER CODE END USART1_Init 2 */
+
+}
+
+/**
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART2_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART2_Init 0 */
+
+  /* USER CODE END USART2_Init 0 */
+
+  /* USER CODE BEGIN USART2_Init 1 */
+
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart2.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetTxFifoThreshold(&huart2, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetRxFifoThreshold(&huart2, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_DisableFifoMode(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART2_Init 2 */
+
+  /* USER CODE END USART2_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMAMUX1_CLK_ENABLE();
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
 }
 
