@@ -6,9 +6,9 @@
 */.settings/
 
 # Projects files
-*/.cproject
-*/.project
-*/.mxproject
+#*/.cproject
+#*/.project
+#*/.mxproject
 
 # Debug files
 */Debug
