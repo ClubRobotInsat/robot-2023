@@ -39,7 +39,7 @@
 /*
  * CAN ID for this module: 2 (Base roulante)
  *
- * 0 : urgency
+ * 0 : urgency EMERGENCY
  * 1 : raspy
  * 2 : base roulante (Left + Right)
  * 3 : base roulante 2 (Front + Rear)
@@ -192,6 +192,10 @@ int main(void)
 	Motor_Set_Direction(motor_R, MOTOR_DIRECTION_CW); /* This works when I change CW to CCW , the oscilloscope displays different voltages */
 	Motor_Start(motor_L);
 	Motor_Start(motor_R);
+
+
+
+
 	HAL_Delay(2000);
 
   /* USER CODE END 2 */
