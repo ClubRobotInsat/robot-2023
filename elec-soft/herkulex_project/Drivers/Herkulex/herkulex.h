@@ -109,7 +109,7 @@ typedef struct {
  ****************************************************************************************************************/
 
 /*	****************************************************************************************************************
-	Functions for Set up the servos
+	Functions to Set up the servos
 *************************************************************************************************************** */
 
 /**
@@ -123,14 +123,14 @@ void Herkulex_initCommunication(Herkulex_Struct * servos, UART_HandleTypeDef * h
 
 /**
  * @fn void Herkulex_init(Herkulex_Struct*)
- * @brief Initialize all motors, make sure to reboot each servo with their proper ID before initialize
+ * @brief Initialize all motors, make sure to reboot each servo with their proper ID before initialize.
  *
  * @param servos Herkulex_Struct Handler for all servos on a serial link
  */
 void  Herkulex_initServos(Herkulex_Struct * servos);
 
 /**
- * @brief Reboot a servo.
+ * @brief Reboot a servo. The broadcast ID doesn't work for this function.
  * 
  * @param servos Herkulex_Struct Handler for all servos on a serial link
  * @param servoID ID of the servo to reboot
@@ -155,7 +155,7 @@ void  Herkulex_setACK(Herkulex_Struct * servos, uint8_t valueACK);
 void  Herkulex_clearError(Herkulex_Struct * servos, uint8_t servoID);
 
 /*	****************************************************************************************************************
-	Functions for Move on the servos
+	Functions to Move on the servos
 *************************************************************************************************************** */
 
 /**
@@ -210,11 +210,30 @@ void  Herkulex_moveOne(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal,
 void  Herkulex_rotateOne(Herkulex_Struct * servos, uint8_t servoID, int16_t speed, uint16_t pTime, uint8_t iLed);
 
 /*	****************************************************************************************************************
-	Functions for Configure the servos
+	Functions to Get Info from the servos
 *************************************************************************************************************** */
+/**
+ * @fn float Herkulex_getAngle(Herkulex_Struct*, uint8_t)
+ * @brief Get angle of a servo
+ * 
+ * @param servos Herkulex_Struct Handler for all servos on a serial link
+ * @param servoID ID of the servo to get angle
+ * @return float Angle of the servo, can be from -150 to 150
+ */
+float Herkulex_getAngle(Herkulex_Struct * servos, uint8_t servoID);
+
+/** 
+ * @fn uint16_t Herkulex_getPosition(Herkulex_Struct*, uint8_t)
+ * @brief Get position of a servo, the result can be +-1 of the real position
+ * 
+ * @param servos Herkulex_Struct Handler for all servos on a serial link
+ * @param servoID ID of the servo to get position
+ * @return uint16_t Position of the servo, can be from 0 to 1023
+ */
+uint16_t   Herkulex_getPosition(Herkulex_Struct * servos, uint8_t servoID);
 
 /**
- * @brief Get status of a servo
+ * @brief Get status of a servo(Herkulex_Struct*, uint8_t)
  * 
  * @param servos Herkulex_Struct Handler for all servos on a serial link
  * @param servoID ID of the servo to get status
@@ -224,6 +243,9 @@ void  Herkulex_rotateOne(Herkulex_Struct * servos, uint8_t servoID, int16_t spee
  * Check the manual at page 39 for more details.
  */
 uint16_t  Herkulex_getStatus(Herkulex_Struct * servos, uint8_t servoID);
+
+
+
 
 // TODO
 uint8_t  Herkulex_model(Herkulex_Struct * servos);
@@ -242,8 +264,7 @@ void  Herkulex_actionAll(Herkulex_Struct * servos, uint8_t pTime);
 
 void  Herkulex_moveOneAngle(Herkulex_Struct * servos, uint8_t servoID, float angle, uint16_t pTime, uint8_t iLed);
 
-uint16_t   Herkulex_getPosition(Herkulex_Struct * servos, uint8_t servoID);
-float Herkulex_getAngle(Herkulex_Struct * servos, uint8_t servoID);
+
 uint16_t   Herkulex_getSpeed(Herkulex_Struct * servos, uint8_t servoID);
 
 void  Herkulex_setLed(Herkulex_Struct * servos,uint8_t servoID, uint8_t valueLed);

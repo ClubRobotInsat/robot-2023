@@ -122,7 +122,7 @@ uint8_t HMB_reboot(uint8_t *pPackage, uint8_t servoID);
 uint8_t HMB_ramWrite(uint8_t *pPackage, uint8_t servoID, Herkulex_RAM_Address_t startAddress, uint8_t *data, uint8_t lenghtData);
 
 /* --------------------------- HRAMREAD ------------------------------------ */
-uint8_t HMB_ramRead(uint8_t *pPackage, uint8_t servoID, Herkulex_RAM_Address_t startAddress, uint8_t *data, uint8_t lenghtData);
+uint8_t HMB_ramRead(uint8_t *pPackage, uint8_t servoID, Herkulex_RAM_Address_t startAddress, uint8_t lenghtData);
 
 /* --------------------------- HSJOG --------------------------------------- */
 /**
@@ -138,6 +138,8 @@ uint8_t HMB_ramRead(uint8_t *pPackage, uint8_t servoID, Herkulex_RAM_Address_t s
  */
 uint8_t HMB_sJog(uint8_t *pPackage, uint8_t servoID, uint8_t pTime, uint8_t goalMSB, uint8_t goalLSB, uint8_t ledValue);
 
+/* --------------------------- HSTAT ------------------------------------ */
+uint8_t HMB_stat(uint8_t *pPackage, uint8_t servoID);
 
 #ifdef __cplusplus
 extern "C" }

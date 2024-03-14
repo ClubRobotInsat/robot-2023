@@ -52,12 +52,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
  * @param package Pointer to data to send
  * @param size	Number of bytes to send
  */
-void Herkulex_sendData(Herkulex_Struct * servos, uint8_t * package, uint8_t size){
+void Herkulex_sendData(Herkulex_Struct * servos, uint8_t size){
 	HAL_StatusTypeDef uart_status = HAL_OK;
 
 	__HAL_UART_FLUSH_DRREGISTER(servos->huart);
 	do{
-		uart_status = HAL_UART_Transmit(servos->huart, package, size, HERKULEX_SEND_TIMEOUT);
+		uart_status = HAL_UART_Transmit(servos->huart, servos->package, size, HERKULEX_SEND_TIMEOUT);
 	} while (uart_status == HAL_BUSY);
 }
 
@@ -91,6 +91,33 @@ bool Herkulex_waitToReceiveData(){
 }
 
 /**
+ * @fn uint8_t Herkulex_checksum1(uint8_t*)
+ * @brief Checksum 1 to verify data of Herkulex
+ *
+ * @param msg uint8_t* pointer to message
+ * @return Result of Checksum1
+ */
+uint8_t Herkulex_checksum1(uint8_t * msg, uint8_t lenghtData){
+	uint8_t XOR = msg[2]^msg[3]^msg[4];
+	for (int i = 0; i < lenghtData; i++)
+	{
+		XOR = XOR ^ msg[i+7];
+	}
+	return (XOR&0xFE);
+}
+
+/**
+ * @fn uint8_t Herkulex_checksum2(uint8_t)
+ * @brief Checksum 2 to verify data of Herkulex
+ *
+ * @param XOR Checksum1
+ * @return Result of Checksum2
+ */
+static inline uint8_t Herkulex_checksum2(uint8_t XOR){
+	return (~XOR)&0xFE;
+}
+
+/**
  * @fn void Herkulex_addData(Herkulex_Struct*, uint8_t, uint8_t, uint8_t, uint8_t)
  * @brief To Do
  *
@@ -111,7 +138,7 @@ void Herkulex_addData(Herkulex_Struct * servos, uint8_t GoalLSB, uint8_t GoalMSB
  ****************************************************************************************************************/
 
 /*	****************************************************************************************************************
-	Functions for Set up the servos
+	Functions to Set up the servos
 *************************************************************************************************************** */
 
 void Herkulex_initCommunication(Herkulex_Struct * servos, UART_HandleTypeDef * huart){
@@ -136,24 +163,24 @@ void  Herkulex_initServos(Herkulex_Struct * servos){
 void  Herkulex_reboot(Herkulex_Struct * servos, uint8_t servoID){
 	uint8_t package_sizeToSend;
 	package_sizeToSend = HMB_reboot(servos->package, servoID);
-	Herkulex_sendData(servos, servos->package, package_sizeToSend);
+	Herkulex_sendData(servos, package_sizeToSend);
 }
 
 void  Herkulex_setACK(Herkulex_Struct * servos, uint8_t valueACK){
 	uint8_t package_sizeToSend;
 	package_sizeToSend = HMB_ramWrite(servos->package, HERKULEX_BROADCAST_ID, RAM_ACK_POLICY, &valueACK, 1);
-	Herkulex_sendData(servos, servos->package, package_sizeToSend);
+	Herkulex_sendData(servos, package_sizeToSend);
 }
 
 void  Herkulex_clearError(Herkulex_Struct * servos, uint8_t servoID){
 	uint8_t package_sizeToSend;
 	uint8_t data[2] = {0x00, 0x00};
 	package_sizeToSend = HMB_ramWrite(servos->package, servoID, RAM_STATUS_ERROR, data, 2);
-	Herkulex_sendData(servos, servos->package, package_sizeToSend);
+	Herkulex_sendData(servos, package_sizeToSend);
 }
 
 /*	****************************************************************************************************************
-	Functions for Move the servos
+	Functions to Move the servos
 *************************************************************************************************************** */
 
 void  Herkulex_torqueON(Herkulex_Struct * servos, uint8_t servoID){
@@ -161,7 +188,7 @@ void  Herkulex_torqueON(Herkulex_Struct * servos, uint8_t servoID){
 	uint8_t data = 0x60;			// Torque ON
 
 	package_sizeToSend = HMB_ramWrite(servos->package, servoID, RAM_TORQUE_CONTROL, &data, 1);
-	Herkulex_sendData(servos, servos->package, package_sizeToSend);
+	Herkulex_sendData(servos, package_sizeToSend);
 }
 
 void  Herkulex_torqueOFF(Herkulex_Struct * servos, uint8_t servoID){
@@ -169,7 +196,7 @@ void  Herkulex_torqueOFF(Herkulex_Struct * servos, uint8_t servoID){
 	uint8_t data = 0x00;			// Torque OFF
 
 	package_sizeToSend = HMB_ramWrite(servos->package, servoID, RAM_TORQUE_CONTROL, &data, 1);
-	Herkulex_sendData(servos, servos->package, package_sizeToSend);
+	Herkulex_sendData(servos, package_sizeToSend);
 }
 
 void  Herkulex_torqueBREAK(Herkulex_Struct * servos, uint8_t servoID){
@@ -177,7 +204,7 @@ void  Herkulex_torqueBREAK(Herkulex_Struct * servos, uint8_t servoID){
 	uint8_t data = 0x40;			// Torque BREAK
 
 	package_sizeToSend = HMB_ramWrite(servos->package, servoID, RAM_TORQUE_CONTROL, &data, 1);
-	Herkulex_sendData(servos, servos->package, package_sizeToSend);
+	Herkulex_sendData(servos, package_sizeToSend);
 }
 
 void  Herkulex_moveOne(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal, uint16_t pTime, uint8_t iLed){
@@ -208,7 +235,7 @@ void  Herkulex_moveOne(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal,
 		break;
 	}
 	package_sizeToSend = HMB_sJog(servos->package, servoID, pTime, posLSB, posMSB, iBlue*8 + iGreen*4 + iRed*16);	
-	Herkulex_sendData(servos, servos->package, package_sizeToSend);
+	Herkulex_sendData(servos, package_sizeToSend);
 }
 /*
 void  Herkulex_rotateOne(Herkulex_Struct * servos, uint8_t servoID, int16_t speed, uint16_t pTime, uint8_t iLed){
@@ -283,36 +310,56 @@ void  Herkulex_rotateOne(Herkulex_Struct * servos, uint8_t servoID, int16_t spee
 }
 */
 /*	****************************************************************************************************************
-	Functions for Configure the servos
+	Functions to Get Info from the servos
 *************************************************************************************************************** */
+float Herkulex_getAngle(Herkulex_Struct * servos, uint8_t servoID){
+	uint16_t pos = Herkulex_getPosition(servos, servoID);
+	return (pos-520)*0.325;
+}
 
-/*
+uint16_t   Herkulex_getPosition(Herkulex_Struct * servos, uint8_t servoID){
+	uint8_t package_sizeToSend;
+	uint8_t checksum = 0;
+	uint8_t buffer[13] = {0};		// Herkulex will send 13 bytes, including 6 bytes of data
+
+	// Build request to Herkulex
+	package_sizeToSend = HMB_ramRead(servos->package, servoID, RAM_ABSOLUTE_POSITION, 2);
+
+	// Start listen to incoming data
+	Herkulex_startListenData(servos, buffer, 13);
+
+	// Send request to Herkulex
+	Herkulex_sendData(servos, package_sizeToSend);
+
+	// Wait for Herkulex to response
+	if (Herkulex_waitToReceiveData()){		// read 13 bytes from serial
+		checksum = Herkulex_checksum1(buffer, 6);
+
+		if (checksum != buffer[5]){
+			return -1; 				//checksum1 not true
+		}
+		if (((~checksum)&0xFE) != buffer[6]){
+			return -2;				//checksum2 not true
+		}
+		return (((buffer[10]&0x03)<<8) | buffer[9]);
+	} else {
+		return -3;					//Message not received (timeout)
+	};
+}
+
 uint16_t  Herkulex_getStatus(Herkulex_Struct * servos, uint8_t servoID){
-
+	uint8_t package_sizeToSend;
 	uint8_t checksum = 0;
 	uint8_t buffer[9] = {0};		// Herkulex will send 9 bytes
 
-	// Send request to Herkulex
-	servos->msg.pSize    = 0x07;
-	servos->msg.pID      = servoID;
-	servos->msg.cmd      = HSTAT;
-
-	servos->msg.ck1 		= (servos->msg.pSize^servos->msg.pID^servos->msg.cmd)&0xFE;
-	servos->msg.ck2		= (~(servos->msg.pSize^servos->msg.pID^servos->msg.cmd))&0xFE ;
-
-	servos->msg.dataEx[0] = 0xFF;
-	servos->msg.dataEx[1] = 0xFF;
-	servos->msg.dataEx[2] = servos->msg.pSize;
-	servos->msg.dataEx[3] = servos->msg.pID;
-	servos->msg.dataEx[4] = servos->msg.cmd;
-	servos->msg.dataEx[5] = servos->msg.ck1;
-	servos->msg.dataEx[6] = servos->msg.ck2;
+	// Build request to Herkulex
+	package_sizeToSend = HMB_stat(servos->package, servoID);
 
 	// Start listen to incoming data
 	Herkulex_startListenData(servos, buffer, 9);
 
 	// Send request to Herkulex
-	Herkulex_sendData(servos);
+	Herkulex_sendData(servos, package_sizeToSend);
 
 	// Wait for Herkulex to response
 
@@ -322,7 +369,7 @@ uint16_t  Herkulex_getStatus(Herkulex_Struct * servos, uint8_t servoID){
 		if (checksum != buffer[5]){
 			return -1; 				//checksum1 not true
 		}
-		if (Herkulex_checksum2(checksum) != buffer[6]){
+		if (((~checksum)&0xFE) != buffer[6]){
 			return -2;				//checksum2 not true
 		}
 		return (buffer[7] << 8) + buffer[8];			// return Status Error (first byte) and Status Detail (second byte)
@@ -331,7 +378,6 @@ uint16_t  Herkulex_getStatus(Herkulex_Struct * servos, uint8_t servoID){
 	};
 }
 
-*/
 
 
 

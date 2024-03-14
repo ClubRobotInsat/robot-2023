@@ -75,21 +75,21 @@ uint8_t HMB_reboot(uint8_t *pPackage, uint8_t servoID){
 }
 
 /* --------------------------- HRAMWRITE ------------------------------------ */
-uint8_t HMB_ramWrite(uint8_t *pPackage, uint8_t servoID, Herkulex_RAM_Address_t startAddress, uint8_t *data, uint8_t lenghtData){
+uint8_t HMB_ramWrite(uint8_t *pPackage, uint8_t servoID, Herkulex_RAM_Address_t startAddress, uint8_t *data, uint8_t lenghtDataToWrite){
     Herkulex_Message_Struct msg;
 
-    msg.pSize = 0x09 + lenghtData;
+    msg.pSize = 0x09 + lenghtDataToWrite;
 	msg.pID   = servoID;
 	msg.cmd   = HRAMWRITE;
 	msg.data[0] = startAddress;               
-	msg.data[1] = lenghtData;               
+	msg.data[1] = lenghtDataToWrite;               
 	
-	for (int i = 0; i < lenghtData; i++)
+	for (int i = 0; i < lenghtDataToWrite; i++)
 	{
 		msg.data[i+2] = data[i];
 	}
 	      
-	msg.lenghtData = 2 + lenghtData;
+	msg.lenghtData = 2 + lenghtDataToWrite;
 
 	msg.ck1 = HMB_checksum1(&(msg));
 	msg.ck2 = HMB_checksum2(msg.ck1);
@@ -104,21 +104,21 @@ uint8_t HMB_ramWrite(uint8_t *pPackage, uint8_t servoID, Herkulex_RAM_Address_t 
 	pPackage[7] = msg.data[0];
 	pPackage[8] = msg.data[1];
 	
-	for (int i = 0; i < lenghtData; i++){
+	for (int i = 0; i < lenghtDataToWrite; i++){
 		pPackage[i+9] = msg.data[i+2];
 	}
 
     return msg.pSize;
 }
-
-uint8_t HMB_ramRead(uint8_t *pPackage, uint8_t servoID, Herkulex_RAM_Address_t startAddress, uint8_t *data, uint8_t lenghtData){
+/* --------------------------- HRAMREAD ------------------------------------ */
+uint8_t HMB_ramRead(uint8_t *pPackage, uint8_t servoID, Herkulex_RAM_Address_t startAddress, uint8_t lenghtDataToRead){
 	Herkulex_Message_Struct msg;
 
     msg.pSize = 0x09;
 	msg.pID   = servoID;
 	msg.cmd   = HRAMREAD;
 	msg.data[0] = startAddress;               
-	msg.data[1] = lenghtData;               
+	msg.data[1] = lenghtDataToRead;               
 	      
 	msg.lenghtData = 2;
 
@@ -175,4 +175,26 @@ uint8_t HMB_sJog(uint8_t *pPackage, uint8_t servoID, uint8_t pTime, uint8_t goal
 	pPackage[11] = msg.data[3];
 
 	return msg.pSize;
+}
+
+/* --------------------------- HSTAT ------------------------------------ */
+uint8_t HMB_stat(uint8_t *pPackage, uint8_t servoID){
+	Herkulex_Message_Struct msg;
+
+    msg.pSize = 0x07;
+	msg.pID   = servoID;
+	msg.cmd   = HSTAT;             
+
+	msg.ck1 = (msg.pSize^msg.pID^msg.cmd)&0xFE;
+	msg.ck2 = (~(msg.pSize^msg.pID^msg.cmd))&0xFE;
+
+	pPackage[0] = 0xFF;
+	pPackage[1] = 0xFF;
+	pPackage[2] = msg.pSize;
+	pPackage[3] = msg.pID;
+	pPackage[4] = HSTAT;
+	pPackage[5] = msg.ck1;
+	pPackage[6] = msg.ck2;
+
+    return msg.pSize;
 }

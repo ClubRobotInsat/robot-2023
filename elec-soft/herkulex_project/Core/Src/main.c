@@ -67,7 +67,8 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint16_t error = 0;
+uint16_t info = 0;
+float angle = 0.0;
 /* USER CODE END 0 */
 
 /**
@@ -92,7 +93,6 @@ int main(void)
 
   /* Configure the system clock */
   SystemClock_Config();
-
   /* USER CODE BEGIN SysInit */
 
   /* USER CODE END SysInit */
@@ -105,13 +105,30 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   Herkulex_initCommunication(&servos, &huart1);
+  Herkulex_reboot(&servos, 7);
+  Herkulex_initServos(&servos);
+  /*-------------------------------------- TEST-------------------------------------------------*/
+
+  Herkulex_moveOne(&servos, 7, 30, 1000, HERKULEX_LED_GREEN);
+  HAL_Delay(2000);
+  info = Herkulex_getPosition(&servos, 7);
+
+  Herkulex_moveOne(&servos, 7, 500, 1000, HERKULEX_LED_GREEN);
+  HAL_Delay(2000);
+  //Herkulex_clearError(&servos, 7);
+  //info = Herkulex_getStatus(&servos, 7);
+  angle = Herkulex_getAngle(&servos, 7);
+  //Herkulex_rotateOne(&servos, 7, 512, 0, 1);
+
+  /*-------------------------------------- BRAS TEST -------------------------------------------------*/
+  /*
   Herkulex_reboot(&servos, 2);
   Herkulex_reboot(&servos, 11);
   Herkulex_reboot(&servos, 1);
   Herkulex_initServos(&servos);
 
 
-  /*Pos Init */
+  // Pos Init
   __HAL_TIM_SET_COMPARE(&htim2, 0, 500);
   HAL_TIM_PWM_Start(&htim2, 0);
 
@@ -124,7 +141,7 @@ int main(void)
   Herkulex_moveOne(&servos, MOTOR_3, 700, 500, HERKULEX_LED_GREEN);
   HAL_Delay(1000);
 
-  /* Pos Attrape */
+  // Pos Attrape
 
   Herkulex_moveOne(&servos, MOTOR_1, 270, 500, HERKULEX_LED_GREEN);
   HAL_Delay(500);
@@ -139,7 +156,7 @@ int main(void)
   HAL_Delay(1000);
   __HAL_TIM_SET_COMPARE(&htim2, 0, 500);
   HAL_Delay(1000);
-  /* Pos Pose */
+  // Pos Pose
 
   Herkulex_moveOne(&servos, MOTOR_2, 990, 500, HERKULEX_LED_GREEN);
   HAL_Delay(500);
@@ -156,7 +173,7 @@ int main(void)
   __HAL_TIM_SET_COMPARE(&htim2, 0, 900);
   HAL_Delay(500);
 
-  /* Pos Attrape */
+  // Pos Attrape
 
     Herkulex_moveOne(&servos, MOTOR_1, 270, 500, HERKULEX_LED_GREEN);
     HAL_Delay(500);
@@ -171,7 +188,7 @@ int main(void)
     HAL_Delay(1000);
     __HAL_TIM_SET_COMPARE(&htim2, 0, 500);
     HAL_Delay(1000);
-    /* Pos Pose */
+    // Pos Pose
 
     Herkulex_moveOne(&servos, MOTOR_2, 990, 500, HERKULEX_LED_GREEN);
     HAL_Delay(500);
@@ -186,18 +203,14 @@ int main(void)
     HAL_Delay(500);
 
     __HAL_TIM_SET_COMPARE(&htim2, 0, 900);
-/*
-  Herkulex_moveOne(&servos, MOTOR_2, 850, 500, HERKULEX_LED_GREEN);
-  HAL_Delay(500);*/
 
-  Herkulex_torqueOFF(&servos, 2);
-  Herkulex_torqueOFF(&servos, 11);
-  Herkulex_torqueOFF(&servos, 1);
-  //Herkulex_moveOne(&servos, 2, 512, 1000, HERKULEX_LED_GREEN);
-  //HAL_Delay(2000);
-  //Herkulex_moveOne(&servos, 2, 1024, 1000, HERKULEX_LED_GREEN);
-  //HAL_Delay(2000);
-  //Herkulex_rotateOne(&servos, 7, 512, 0, 1);
+    Herkulex_torqueOFF(&servos, 2);
+  	Herkulex_torqueOFF(&servos, 11);
+  	Herkulex_torqueOFF(&servos, 1);
+    */
+
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
