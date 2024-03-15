@@ -59,20 +59,18 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define Enable_Stepper_Pin GPIO_PIN_0
-#define Enable_Stepper_GPIO_Port GPIOA
-#define Reset_Stepper_Pin GPIO_PIN_1
-#define Reset_Stepper_GPIO_Port GPIOA
-#define USM0_Stepper_Pin GPIO_PIN_2
-#define USM0_Stepper_GPIO_Port GPIOA
-#define USM1_Stepper_Pin GPIO_PIN_3
-#define USM1_Stepper_GPIO_Port GPIOA
-#define Home_Stepper_Pin GPIO_PIN_4
-#define Home_Stepper_GPIO_Port GPIOA
-#define STEP_Stepper_Pin GPIO_PIN_5
-#define STEP_Stepper_GPIO_Port GPIOA
-#define DIR__Stepper_Pin GPIO_PIN_6
-#define DIR__Stepper_GPIO_Port GPIOA
+#define PWM_MOTOR_1_Pin GPIO_PIN_0
+#define PWM_MOTOR_1_GPIO_Port GPIOA
+#define PWM_MOTOR_2_Pin GPIO_PIN_1
+#define PWM_MOTOR_2_GPIO_Port GPIOA
+#define DIR_MOTOR_1_Pin GPIO_PIN_4
+#define DIR_MOTOR_1_GPIO_Port GPIOA
+#define A_ENCODER_1_Pin GPIO_PIN_6
+#define A_ENCODER_1_GPIO_Port GPIOA
+#define DIR_MOTOR_2_Pin GPIO_PIN_9
+#define DIR_MOTOR_2_GPIO_Port GPIOA
+#define A_ENCODER_2_Pin GPIO_PIN_6
+#define A_ENCODER_2_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

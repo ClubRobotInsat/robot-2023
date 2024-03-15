@@ -12,3 +12,6 @@
 
 # Debug files
 */Debug
+*/*Debug.launch
+
+.vscode/
