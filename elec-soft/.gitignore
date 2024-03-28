@@ -8,7 +8,7 @@
 
 # VSCode setting and metadata files
 */.vs/
-*/.vscode/
+.vscode/
 
 
 # Projects files

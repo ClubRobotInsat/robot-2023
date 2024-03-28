@@ -1,0 +1,6 @@
+[submodule "meca/3D_Model"]
+	path = meca/3D_Model
+	url = git@github.com:ClubRobotInsat/meca_model_robot_2024.git
+[submodule "info/info2024"]
+	path = info/info2024
+	url = git@github.com:ClubRobotInsat/Info2024.git
