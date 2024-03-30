@@ -52,9 +52,14 @@ extern "C" {
 #include "stm32g4xx_hal.h"
 #include "herkulexMessageBuilder.h"
 /* HERKULEX_LED - See Manual p29 */
-#define HERKULEX_LED_GREEN 	 0x01
-#define HERKULEX_LED_BLUE     0x02
-#define HERKULEX_LED_RED    	 0x04
+#define HERKULEX_LED_GREEN 	 	0x01
+#define HERKULEX_LED_BLUE     	0x02
+#define HERKULEX_LED_CYAN		0x03
+#define HERKULEX_LED_RED		0x04
+#define HERKULEX_LED_GREEN2		0x05
+#define HERKULEX_LED_PINK  		0x06
+#define HERKULEX_LED_WHITE 		0x07
+
 
 
 /* HERKULEX_STATUS_ERROR - See Manual p39 */
@@ -109,6 +114,12 @@ typedef struct {
 	//uint8_t moveData[DATA_ACTION_ALL];	/* data for simultaneous actions*/
 } Herkulex_Struct;
 
+typedef enum {
+	Herkulex_OK = 0x00,
+	Herkulex_ErrorSendFailed = 0x01,
+	Herkulex_ErrorReceiveFailed = 0x02,
+	Herkulex_ErrorWrongParameter = 0x03,
+} Herkulex_StatusTypedef;
 
 /****************************************************************************************************************
  *
@@ -136,16 +147,18 @@ void Herkulex_initCommunication(Herkulex_Struct * servos, UART_HandleTypeDef * h
  * @brief Initialize all motors, make sure to reboot each servo with their proper ID before initialize.
  *
  * @param servos Herkulex_Struct Handler for all servos on a serial link
+ * @return Herkulex_StatusTypedef Status of the function
  */
-void  Herkulex_initServos(Herkulex_Struct * servos);
+Herkulex_StatusTypedef  Herkulex_initServos(Herkulex_Struct * servos);
 
 /**
  * @brief Reboot a servo. The broadcast ID doesn't work for this function.
  * 
  * @param servos Herkulex_Struct Handler for all servos on a serial link
  * @param servoID ID of the servo to reboot
+ * @return Herkulex_StatusTypedef Status of the function
  */
-void  Herkulex_reboot(Herkulex_Struct * servos, uint8_t servoID);
+Herkulex_StatusTypedef  Herkulex_reboot(Herkulex_Struct * servos, uint8_t servoID);
 
 /**
  * @fn void Herkulex_setACK(Herkulex_Struct*, uint8_t)
@@ -153,8 +166,9 @@ void  Herkulex_reboot(Herkulex_Struct * servos, uint8_t servoID);
  *
  * @param servos Herkulex_Struct Handler for all servos on a serial link
  * @param valueACK ACK policy to set, can be one on the list: HERKULEX_ACK_MODE
+ * @return Herkulex_StatusTypedef Status of the function
  */
-void  Herkulex_setACK(Herkulex_Struct * servos, uint8_t valueACK);
+Herkulex_StatusTypedef  Herkulex_setACK(Herkulex_Struct * servos, uint8_t valueACK);
 
 /**
  * @fn void Herkulex_clearError(Herkulex_Struct*, uint8_t)
@@ -162,8 +176,13 @@ void  Herkulex_setACK(Herkulex_Struct * servos, uint8_t valueACK);
  * 
  * @param servos Herkulex_Struct Handler for all servos on a serial link
  * @param servoID ID of the servo to clear error
+ * @return Herkulex_StatusTypedef Status of the function
  */
-void  Herkulex_clearError(Herkulex_Struct * servos, uint8_t servoID);
+Herkulex_StatusTypedef  Herkulex_clearError(Herkulex_Struct * servos, uint8_t servoID);
+
+/*
+*************TO DO*********************
+*/
 
 /**
  * @fn void Herkulex_factoryReset(Herkulex_Struct*, uint8_t)
@@ -171,8 +190,9 @@ void  Herkulex_clearError(Herkulex_Struct * servos, uint8_t servoID);
  * 
  * @param servos Herkulex_Struct Handler for all servos on a serial link
  * @param servoID ID of the servo to factory reset
+ * @return Herkulex_StatusTypedef Status of the function
  */
-void Herkulex_factoryReset(Herkulex_Struct * servos, uint8_t servoID);
+Herkulex_StatusTypedef Herkulex_factoryReset(Herkulex_Struct * servos, uint8_t servoID);
 /*	****************************************************************************************************************
 	Functions to Move on the servos
 *************************************************************************************************************** */
@@ -183,8 +203,9 @@ void Herkulex_factoryReset(Herkulex_Struct * servos, uint8_t servoID);
  * 
  * @param servos Herkulex_Struct Handler for all servos on a serial link
  * @param servoID ID of the servo to turn on the torque
+ * @return Herkulex_StatusTypedef Status of the function
  */
-void  Herkulex_torqueON(Herkulex_Struct * servos, uint8_t servoID);
+Herkulex_StatusTypedef  Herkulex_torqueON(Herkulex_Struct * servos, uint8_t servoID);
 
 /**
  * @fn void Herkulex_torqueOFF(Herkulex_Struct*, uint8_t)
@@ -192,8 +213,9 @@ void  Herkulex_torqueON(Herkulex_Struct * servos, uint8_t servoID);
  * 
  * @param servos Herkulex_Struct Handler for all servos on a serial link
  * @param servoID ID of the servo to turn off the torque
+ * @return Herkulex_StatusTypedef Status of the function
  */
-void  Herkulex_torqueOFF(Herkulex_Struct * servos, uint8_t servoID);
+Herkulex_StatusTypedef  Herkulex_torqueOFF(Herkulex_Struct * servos, uint8_t servoID);
 
 /**
  * @fn void Herkulex_torqueBREAK(Herkulex_Struct*, uint8_t)
@@ -201,8 +223,9 @@ void  Herkulex_torqueOFF(Herkulex_Struct * servos, uint8_t servoID);
  * 
  * @param servos Herkulex_Struct Handler for all servos on a serial link
  * @param servoID ID of the servo to break the torque
+ * @return Herkulex_StatusTypedef Status of the function
  */
-void  Herkulex_torqueBREAK(Herkulex_Struct * servos, uint8_t servoID);
+Herkulex_StatusTypedef  Herkulex_torqueBREAK(Herkulex_Struct * servos, uint8_t servoID);
 
 /**
  * @fn void Herkulex_changeMode(Herkulex_Struct*, uint8_t, uint8_t)
@@ -212,8 +235,9 @@ void  Herkulex_torqueBREAK(Herkulex_Struct * servos, uint8_t servoID);
  * @param mode New operating mode to set, can be one of the following values:
  *             - HERKULEX_MODE_POSITION: Position control mode
  *             - HERKULEX_MODE_CONTINUOUS: Speed control mode
+ * @return Herkulex_StatusTypedef Status of the function
  */
-void Herkulex_changeMode(Herkulex_Struct * servos, uint8_t servoID, uint8_t mode);
+Herkulex_StatusTypedef Herkulex_changeMode(Herkulex_Struct * servos, uint8_t servoID, uint8_t mode);
 
 
 /**
@@ -224,8 +248,9 @@ void Herkulex_changeMode(Herkulex_Struct * servos, uint8_t servoID, uint8_t mode
  * @param servoID ID of the servo to move
  * @param Goal Position to move, can be from 0 to 1023
  * @param iLed LED to turn on, can be one on the list: HERKULEX_LED
+ * @return Herkulex_StatusTypedef Status of the function
  */
-void  Herkulex_moveOne(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal, uint8_t iLed);
+Herkulex_StatusTypedef  Herkulex_moveOne(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal, uint8_t iLed);
 
 /**
  * @fn void Herkulex_rotate(Herkulex_Struct*, uint8_t, int16_t, uint16_t, uint8_t)
@@ -235,44 +260,45 @@ void  Herkulex_moveOne(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal,
  * @param servoID ID of the servo to rotate
  * @param speed Speed to rotate, can be from -1023 to 1023
  * @param iLed LED to turn on, can be one on the list: HERKULEX_LED
+ * @return Herkulex_StatusTypedef Status of the function
  */
-void  Herkulex_rotateOne(Herkulex_Struct * servos, uint8_t servoID, int16_t speed, uint8_t iLed);
+Herkulex_StatusTypedef  Herkulex_rotateOne(Herkulex_Struct * servos, uint8_t servoID, int16_t speed, uint8_t iLed);
 
 /*	****************************************************************************************************************
 	Functions to Get Info from the servos
 *************************************************************************************************************** */
 /**
- * @fn float Herkulex_getAngle(Herkulex_Struct*, uint8_t)
+ * @fn uint16_t Herkulex_getAngle(Herkulex_Struct*, uint8_t, float*)
  * @brief Get angle of a servo
  * 
  * @param servos Herkulex_Struct Handler for all servos on a serial link
  * @param servoID ID of the servo to get angle
- * @return float Angle of the servo, can be from -166.7 to 166.7
- * 												and -201 if check sum 1 error
- * 												and -202 if check sum 2 error
- * 												and -203 if not received 
- */
-float Herkulex_getAngle(Herkulex_Struct * servos, uint8_t servoID);
+ * @param ptrResult Pointer to the result
+ * @return Herkulx_StatusTypedef Status of the function
+ */ 
+Herkulex_StatusTypedef Herkulex_getAngle(Herkulex_Struct * servos, uint8_t servoID, float * ptrResult);
 
-/** 
- * @fn uint16_t Herkulex_getPosition(Herkulex_Struct*, uint8_t)
- * @brief Get position of a servo, the result can be +-1 of the real position
+/**
+ * @fn uint16_t Herkulex_getPosition(Herkulex_Struct*, uint8_t, uint16_t*)
+ * @brief Get position of a servo
  * 
  * @param servos Herkulex_Struct Handler for all servos on a serial link
  * @param servoID ID of the servo to get position
- * @return uint16_t Position of the servo, can be from 0 to 1023
+ * @param ptrResult Pointer to the result
+ * @return Herkulex_StatusTypedef Status of the function
  */
-uint16_t   Herkulex_getPosition(Herkulex_Struct * servos, uint8_t servoID);
+Herkulex_StatusTypedef   Herkulex_getPosition(Herkulex_Struct * servos, uint8_t servoID, uint16_t * ptrResult);
 
 /**
  * @brief Get status error of a servo(Herkulex_Struct*, uint8_t)
  * 
  * @param servos Herkulex_Struct Handler for all servos on a serial link
  * @param servoID ID of the servo to get status error
- * @return uint8_t Status of the servo. Can be one on the list: HERKULEX_STATUS_ERROR
+ * @param ptrResult Pointer to the status error of the servo. Can be one on the list: HERKULEX_STATUS_ERROR
  * Check the manual at page 39 for more details.
+ * @return Herkulex_StatusTypedef Status of the function
  */
-uint8_t  Herkulex_getStatusError(Herkulex_Struct * servos, uint8_t servoID);
+Herkulex_StatusTypedef  Herkulex_getStatusError(Herkulex_Struct * servos, uint8_t servoID, uint8_t * ptrResult);
 
 /**
  * @fn uint8_t Herkulex_getStatusDetail(Herkulex_Struct*, uint8_t)
@@ -280,9 +306,25 @@ uint8_t  Herkulex_getStatusError(Herkulex_Struct * servos, uint8_t servoID);
  * 
  * @param servos Herkulex_Struct Handler for all servos on a serial link
  * @param servoID ID of the servo to get status detail
- * @return uint8_t Status detail of the servo. Can be one on the list: HERKULEX_STATUS_DETAIL
+ * @param ptrResult Pointer to the status detail of the servo. Can be one on the list: HERKULEX_STATUS_DETAIL
+ * Check the manual at page 39 for more details.
+ * @return Herkulex_StatusTypedef Status of the function
  */
-uint8_t Herkulex_getStatusDetail(Herkulex_Struct * servos, uint8_t servoID);
+Herkulex_StatusTypedef Herkulex_getStatusDetail(Herkulex_Struct * servos, uint8_t servoID, uint8_t * ptrResult);
+
+/**
+ * @fn uint8_t Herkulex_getCurrentMode(Herkulex_Struct*, uint8_t)
+ * @brief Get current mode of a servo
+ * 
+ * @param servos Herkulex_Struct Handler for all servos on a serial link
+ * @param servoID ID of the servo to get current mode
+ * @param ptrResult Pointer to the current mode of the servo
+ * 				  	can be one on the list:
+ * 						0x00 : Position Control Mode
+ * 						0x01 : Continuous Rotation Mode
+ * @return Herkulex_StatusTypedef Status of the function
+ */
+Herkulex_StatusTypedef Herkulex_getCurrentMode(Herkulex_Struct * servos, uint8_t servoID, uint8_t * ptrResult);
 
 /**
  * @fn uint8_t Herkulex_getID(Herkulex_Struct*, uint8_t)
@@ -362,18 +404,7 @@ uint16_t Herkulex_getMaxPosition(Herkulex_Struct * servos, uint8_t servoID);
  */
 uint8_t Herkulex_getLed(Herkulex_Struct * servos, uint8_t servoID);
 
-/**
- * @fn uint8_t Herkulex_getCurrentMode(Herkulex_Struct*, uint8_t)
- * @brief Get current mode of a servo
- * 
- * @param servos Herkulex_Struct Handler for all servos on a serial link
- * @param servoID ID of the servo to get current mode
- * @return uint8_t Current mode of the servo
- * 				   can be one on the list:
- * 						0x00 : Position Control Mode
- * 						0x01 : Continuous Rotation Mode
- */
-uint8_t Herkulex_getCurrentMode(Herkulex_Struct * servos, uint8_t servoID);
+
 /*	****************************************************************************************************************
 	Functions to Configure the servo
 *************************************************************************************************************** */
@@ -438,9 +469,10 @@ void Herkulex_setLed(Herkulex_Struct * servos, uint8_t servoID, uint8_t valueLed
  * @param servoID ID of the servo to read RAM
  * @param RAMaddress Address of the RAM registry to read. Can be a value on the list: Herkulex_RAM_Address_t
  * @param lengthToRead Number of bytes to read
- * @return uint16_t Value of the RAM registry
+ * @param ptrResult Pointer to the value of the RAM registry readed
+ * @return Herkulex_StatusTypedef Status of the function
  */
-uint16_t Herkulex_readRAM(Herkulex_Struct * servos, uint8_t servoID, Herkulex_RAM_Address_t addr, uint8_t lengthToRead);
+Herkulex_StatusTypedef Herkulex_readRAM(Herkulex_Struct * servos, uint8_t servoID, Herkulex_RAM_Address_t addr, uint8_t lengthToRead, uint16_t * ptrResult);
 
 uint16_t Herkulex_readEEP(Herkulex_Struct * servos, uint8_t servoID, Herkulex_EEP_Address_t EEPaddress);
 
@@ -479,11 +511,6 @@ void  Herkulex_moveAll(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal,
 void  Herkulex_moveSpeedAll(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal, uint8_t iLed);
 void  Herkulex_moveAllAngle(Herkulex_Struct * servos, uint8_t servoID, float angle, uint8_t iLed);
 void  Herkulex_actionAll(Herkulex_Struct * servos, uint8_t pTime);
-
-
-void  Herkulex_writeRegistryRAM(Herkulex_Struct * servos, uint8_t servoID, uint8_t address, uint8_t writeByte);
-void  Herkulex_writeRegistryEEP(Herkulex_Struct * servos, uint8_t servoID, uint8_t address, uint8_t writeByte);
-
 
 #ifdef __cplusplus
 extern "C" }

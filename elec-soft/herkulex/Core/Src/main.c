@@ -48,7 +48,7 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 uint16_t pos1, pos2;
 uint8_t result;
-float angle;
+uint8_t status;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -97,17 +97,16 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM2_Init();
   MX_USART2_UART_Init();
-
   /* USER CODE BEGIN 2 */
   Herkulex_initCommunication(&servos, &huart1);
   Herkulex_reboot(&servos, 7);
   Herkulex_reboot(&servos, 10);
   Herkulex_initServos(&servos);
 
-  Herkulex_moveOne(&servos, 7, 900, HERKULEX_LED_GREEN);
+  Herkulex_moveOne(&servos, 7, 50, HERKULEX_LED_PINK);
   HAL_Delay(2000);
-  pos1 = Herkulex_getPosition(&servos, 7);
-  result = Herkulex_getCurrentMode(&servos, 7);
+  Herkulex_getPosition(&servos, 7, &pos1);
+  status = Herkulex_getStatusDetail(&servos, 7, &result);
   /*
   Herkulex_moveOne(&servos, 7, 500, 60, HERKULEX_LED_BLUE);
   HAL_Delay(2000);
@@ -115,8 +114,8 @@ int main(void)
    */
 
   Herkulex_changeMode(&servos, 10, HERKULEX_MODE_CONTINUOUS);
-  result = Herkulex_getCurrentMode(&servos, 10);
-  Herkulex_rotateOne(&servos, 10, 500, HERKULEX_LED_GREEN);
+  status = Herkulex_getCurrentMode(&servos, 10, &result);
+  Herkulex_rotateOne(&servos, 10, -500, HERKULEX_LED_GREEN);
   HAL_Delay(2000);
 
   //angle = Herkulex_getAngle(&servos, 7);
@@ -129,10 +128,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  Herkulex_moveOne(&servos, 7, 900, HERKULEX_LED_GREEN);
-	  HAL_Delay(2000);
-	  Herkulex_moveOne(&servos, 7, 500, HERKULEX_LED_GREEN);
-	  HAL_Delay(2000);
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
