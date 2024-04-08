@@ -1,7 +1,7 @@
 /**
- * @file motor_dc.c
+ * @file base_roulant.c
  * @author Triet NGUYEN (tr_nguye@insa-toulouse.fr)
- * @brief Code to control a DC Motor
+ * @brief Code to control a DC Motor combined with a encoder
  * @version 0.1
  * @date 2023-12-07
  * 
