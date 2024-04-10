@@ -7,7 +7,6 @@
  */
 
 #include "can_stm32.h"
-#include "stm32g4xx_hal.h"
 
 /**
  * Variable to handling the CAN interface

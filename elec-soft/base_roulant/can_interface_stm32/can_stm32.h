@@ -21,7 +21,7 @@ extern "C" {
 /* Include */
 #include <stdint.h>
 #include <stdbool.h>
-
+#include "stm32g4xx_hal.h"
 /*
 * The configuration of the CAN peripheral on the STM32 is done using the STM32CubeMX software.
 * STM32 Configurations required (with MCP2551):
