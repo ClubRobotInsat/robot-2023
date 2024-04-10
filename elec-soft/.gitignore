@@ -14,4 +14,10 @@
 */Debug
 */*Debug.launch
 
+# Linker script
+*/*.ld
+
+# Startup files
+*.s
+
 .vscode/
