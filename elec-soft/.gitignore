@@ -20,4 +20,6 @@
 # Startup files
 *.s
 
+# Lauch files
+*.launch
 .vscode/

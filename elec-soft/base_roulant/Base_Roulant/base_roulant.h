@@ -20,7 +20,7 @@ extern "C" {
 /* Includes ---------------------------------*/
 #include "stm32g4xx_hal.h"
 #include "motor_dc.h"
-#include "encoder.h"
+#include <encoder.h>
 
 
 /* ---------------------------Pin configurations --------------------------------- */

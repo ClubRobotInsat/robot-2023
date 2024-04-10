@@ -68,6 +68,14 @@ extern "C" {
 #define CAN_ID_MASTER 1
 
 /**
+ * @brief Pass the CAN handle to the interface.
+ * 
+ * @param hfdcan Handle of the CAN peripheral.
+ * @return None
+ */
+void CAN_initInterface(FDCAN_HandleTypeDef * hfdcan);
+
+/**
  * @brief Configure the filter for the CAN peripheral. Required after the initialization of the CAN peripheral.
  * 
  * @return None

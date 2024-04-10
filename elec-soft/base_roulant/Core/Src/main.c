@@ -127,8 +127,10 @@ int main(void)
   MX_FDCAN1_Init();
   /* USER CODE BEGIN 2 */
   BR_init(&htim2, TIM_CHANNEL_MOTOR_LEFT, &htim2, TIM_CHANNEL_MOTOR_RIGHT, DIR_MOTOR_1_GPIO_Port, DIR_MOTOR_1_Pin, DIR_MOTOR_2_GPIO_Port, DIR_MOTOR_2_Pin, &htim3, &htim4);
-  CAN_filterConfig();
+  //CAN_filterConfig();
   CAN_setReceiveCallback(control_baseRoulant);
+  CAN_initInterface(&hfdcan1);
+  CAN_filterConfig();
   CAN_start();
   BR_startAllMotors();
 

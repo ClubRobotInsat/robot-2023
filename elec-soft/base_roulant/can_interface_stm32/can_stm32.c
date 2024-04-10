@@ -12,7 +12,7 @@
 /**
  * Variable to handling the CAN interface
  */
-FDCAN_HandleTypeDef * canHandle;
+FDCAN_HandleTypeDef * canHandle = NULL;
 FDCAN_RxHeaderTypeDef rxHeader; /* The rxHeader does not need to be constructed , it is only filled in when Rx messages are read */
 FDCAN_TxHeaderTypeDef txHeader;
 FDCAN_FilterTypeDef canfil;
@@ -22,6 +22,10 @@ uint8_t canTX[8] = {0,0,0,0,0,0,0,0};
 void (*CAN_receiveCallback)(void);
 
 void CAN_errorHandler(void);
+
+void CAN_initInterface(FDCAN_HandleTypeDef * hfdcan){
+    canHandle = hfdcan;
+}
 
 void CAN_filterConfig(void)
 {

@@ -7,7 +7,7 @@
   ******************************************************************************
 */
 
-#include "Encoder.h"
+#include <encoder.h>
 
 #define ENCODER_TIMER_PRESCALER				128
 #define ENCODER_TIMER_AUTORELOAD			65535
