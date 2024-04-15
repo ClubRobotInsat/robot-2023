@@ -29,7 +29,7 @@ void Motor_Init(Motor_Config * motor, GPIO_TypeDef  * DIR_Port, uint16_t DIR_Pin
 }
 
 void Motor_Start(Motor_Config * motor){
-	__HAL_TIM_SET_COMPARE(motor->TIM, motor->TIM_Channel,0);
+	//__HAL_TIM_SET_COMPARE(motor->TIM, motor->TIM_Channel,0);
 	HAL_TIM_PWM_Start(motor->TIM, motor->TIM_Channel);
 }
 

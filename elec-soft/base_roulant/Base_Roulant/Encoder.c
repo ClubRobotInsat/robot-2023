@@ -9,18 +9,18 @@
 
 #include "Encoder.h"
 
-#define ENCODER_TIMER_PRESCALER				128
+#define ENCODER_TIMER_PRESCALER				127
 #define ENCODER_TIMER_AUTORELOAD			65535
 #define ENCODER_FREQ_CLOCKSOURCE			16000000UL
 #define ENCODER_RESOLUTION     				1024			//Reference to Datasheet of Encoder 2400 1024
 #define PERIMETER_WHEEL_IN_CM 				25.748			//Wheel perimeter in cm
 
-#define ENCODERS_MAX_OVF					6
+#define ENCODERS_MAX_OVF					2
 
-#define ENCODER_SPEED_IN_CM_PER_PULSE		(float)PERIMETER_WHEEL_IN_CM/(float)ENCODER_RESOLUTION	// in cm/pulse
+#define ENCODER_SPEED_IN_CM_PER_PULSE		((float)PERIMETER_WHEEL_IN_CM/(float)ENCODER_RESOLUTION)	// in cm/pulse
 
 //Timer frequency (before ARR) = FCPU/ENCODER_PRECALER (pulses/s)
-#define ENCODER_FREQ_TIM 					(float)ENCODER_FREQ_CLOCKSOURCE/(float)ENCODER_TIMER_PRESCALER
+#define ENCODER_FREQ_TIM 					((float)ENCODER_FREQ_CLOCKSOURCE/(float)ENCODER_TIMER_PRESCALER)
 
 //Constant to calculate the car speed = (Timer frequency before ARR)*(Number of rising pulses per cm) (pulses*cm/s)
 #define ENCODER_CAL_SPEED  					ENCODER_FREQ_TIM * ENCODER_SPEED_IN_CM_PER_PULSE
