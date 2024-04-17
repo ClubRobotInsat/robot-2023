@@ -13,17 +13,17 @@
 #define ENCODER_TIMER_AUTORELOAD			65535
 #define ENCODER_FREQ_CLOCKSOURCE			16000000UL
 #define ENCODER_RESOLUTION     				1024			//Reference to Datasheet of Encoder 2400 1024
-#define PERIMETER_WHEEL_IN_CM 				25.748			//Wheel perimeter in cm
+#define PERIMETER_WHEEL_IN_MM 				251.327			//Wheel perimeter in mm
 
 #define ENCODERS_MAX_OVF					2
 
-#define ENCODER_SPEED_IN_CM_PER_PULSE		((float)PERIMETER_WHEEL_IN_CM/(float)ENCODER_RESOLUTION)	// in cm/pulse
+#define ENCODER_SPEED_IN_MM_PER_PULSE		((float)PERIMETER_WHEEL_IN_MM/(float)ENCODER_RESOLUTION)	// in cm/pulse
 
 //Timer frequency (before ARR) = FCPU/ENCODER_PRECALER (pulses/s)
 #define ENCODER_FREQ_TIM 					((float)ENCODER_FREQ_CLOCKSOURCE/(float)ENCODER_TIMER_PRESCALER)
 
 //Constant to calculate the car speed = (Timer frequency before ARR)*(Number of rising pulses per cm) (pulses*cm/s)
-#define ENCODER_CAL_SPEED  					ENCODER_FREQ_TIM * ENCODER_SPEED_IN_CM_PER_PULSE
+#define ENCODER_CAL_SPEED  					ENCODER_FREQ_TIM * ENCODER_SPEED_IN_MM_PER_PULSE
 
 
 
@@ -85,11 +85,11 @@ void Encoder_Start_Record_Distance (void){
 	position_right = 0;
 }
 
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+void Encoder_Interrupt(TIM_HandleTypeDef *htim)
 {
 	if (htim == ENCODER_LEFT_TIMER) {
 
-		position_left += ENCODER_SPEED_IN_CM_PER_PULSE;
+		position_left += ENCODER_SPEED_IN_MM_PER_PULSE;
     	int ccr_left = HAL_TIM_ReadCapturedValue(ENCODER_LEFT_TIMER,TIM_CHANNEL_1);
     	delta_ccr_left = ccr_left - prev_ccr_left + OVF_cnt_left*__HAL_TIM_GET_AUTORELOAD(ENCODER_LEFT_TIMER);
 		prev_ccr_left = ccr_left;
@@ -97,7 +97,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 	}
     if (htim == ENCODER_RIGHT_TIMER) {
 
-		position_right += ENCODER_SPEED_IN_CM_PER_PULSE;
+		position_right += ENCODER_SPEED_IN_MM_PER_PULSE;
     	int ccr_right = HAL_TIM_ReadCapturedValue(ENCODER_RIGHT_TIMER,TIM_CHANNEL_1);
     	delta_ccr_right = ccr_right - prev_ccr_right + OVF_cnt_right*__HAL_TIM_GET_AUTORELOAD(ENCODER_RIGHT_TIMER);
 		prev_ccr_right = ccr_right;
@@ -132,7 +132,7 @@ float Encoder_Left_Get_Speed(void){
 	}
 	else
 	{
-		return 0;
+		return -1;
 	}
 }
 
@@ -143,7 +143,7 @@ float Encoder_Right_Get_Speed(void){
 	}
 	else
 	{
-		return 0;
+		return -1;
 	}
 }
 

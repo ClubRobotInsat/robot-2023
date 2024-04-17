@@ -58,6 +58,9 @@ typedef enum {
     BR_ERROR_PWM = 3,
 } BR_Error_t;
 
+extern float targetSpeedLeft; //	mm/s
+extern float targetSpeedRight; //	mm/s
+
 /* ----------------------------- Initialization ------------------------------------------*/
 /**
  * @brief Initialize the base roulant
@@ -148,6 +151,15 @@ void BR_startRecordDistance(void);
  * @return float Distance in cm
  */
 float BR_getDistance(BR_Motor_ID_t motor); 
+
+
+/**
+ * @brief Regulate the speed of the motor
+ *
+ */
+void BR_regulateSpeed(void);
+
+void BR_setSpeed(float speed);
 
 #ifdef __cplusplus
 }

@@ -85,16 +85,19 @@ float Encoder_Right_Get_Distance (void);
 /**
  * @fn float Encoder_GetLeftSpeed(void)
  * @brief Get the speed of the left motor
- * @return Speed's Left Motor in centimeter/s : float
+ * @return Speed's Left Motor in millimeter/s : float
  */
 float Encoder_Left_Get_Speed(void);
 
 /**
  * @fn float Encoder_GetRightSpeed(void)
  * @brief Get the speed of the right motor
- * @return Speed's Right Motor in centimeter/s : float
+ * @return Speed's Right Motor in millimeter/s : float
  */
 float Encoder_Right_Get_Speed(void);
+
+
+void Encoder_Interrupt(TIM_HandleTypeDef *htim);
 
 
 

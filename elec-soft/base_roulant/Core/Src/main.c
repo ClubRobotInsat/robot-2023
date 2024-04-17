@@ -99,19 +99,24 @@ int main(void)
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   BR_init(&htim2, TIM_CHANNEL_MOTOR_LEFT, &htim2, TIM_CHANNEL_MOTOR_RIGHT, DIR_MOTOR_1_GPIO_Port, DIR_MOTOR_1_Pin, DIR_MOTOR_2_GPIO_Port, DIR_MOTOR_2_Pin, &htim3, &htim4);
-  BR_startAllMotors();
   BR_setDirection(BR_MOTOR_LEFT, BR_DIRECTION_CW);
   BR_setDirection(BR_MOTOR_RIGHT, BR_DIRECTION_CW);
-  BR_setPWM(BR_MOTOR_LEFT, 50);
-  BR_setPWM(BR_MOTOR_RIGHT, 50);
-  HAL_Delay(1000);
+  BR_startAllMotors();
 
-  s_left = BR_getSpeed(BR_MOTOR_LEFT);
-  s_right = BR_getSpeed(BR_MOTOR_RIGHT);
+//  BR_setPWM(BR_MOTOR_LEFT, 50);
+//  BR_setPWM(BR_MOTOR_RIGHT, 50);
+//  HAL_Delay(10000);
+  BR_setSpeed(500.0);
+  BR_regulateSpeed();
+  //BR_setPWM(BR_MOTOR_LEFT, 30);
+  //BR_setPWM(BR_MOTOR_RIGHT, 30);
 
-  HAL_Delay(2000);
-  
-  BR_stopAllMotors();
+//  s_left = BR_getSpeed(BR_MOTOR_LEFT);
+//  s_right = BR_getSpeed(BR_MOTOR_RIGHT);
+//
+//  HAL_Delay(20000);
+//
+//  BR_stopAllMotors();
 
   /* USER CODE END 2 */
 
@@ -119,6 +124,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  s_left = BR_getSpeed(BR_MOTOR_LEFT);
+	  s_right = BR_getSpeed(BR_MOTOR_RIGHT);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
