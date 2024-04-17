@@ -21,7 +21,7 @@ extern "C" {
 #include "stm32g4xx_hal.h"
 #include "motor_dc.h"
 #include <encoder.h>
-
+#include "can_stm32.h"
 
 /* ---------------------------Pin configurations --------------------------------- */
 
@@ -58,6 +58,11 @@ typedef enum {
     BR_ERROR_PWM = 3,
 } BR_Error_t;
 
+typedef enum {
+    BR_STATUS_OK = 0,
+    BR_STATUS_ERROR = 1,
+} BR_Status_t;
+
 /* ----------------------------- Initialization ------------------------------------------*/
 /**
  * @brief Initialize the base roulant
@@ -72,6 +77,7 @@ typedef enum {
  * @param DIR_Pin_Left GPIO Pin for the direction pin of the left motor
  * @param DIR_Port_Right GPIO Port for the direction pin of the right motor
  * @param DIR_Pin_Right GPIO Pin for the direction pin of the right motor
+ * @param hfdcan Handle of the CAN peripheral
  */
 void BR_init(TIM_HandleTypeDef * TIM_Motor_Left,
             uint32_t TIM_Channel_Motor_Left,     
@@ -82,7 +88,8 @@ void BR_init(TIM_HandleTypeDef * TIM_Motor_Left,
             GPIO_TypeDef * DIR_Port_Right, 
             uint16_t DIR_Pin_Right,
             TIM_HandleTypeDef * TIM_Encoder_Left, 
-            TIM_HandleTypeDef * TIM_Encoder_Right);
+            TIM_HandleTypeDef * TIM_Encoder_Right,
+            FDCAN_HandleTypeDef * hfdcan);
 
 /* ----------------------------- API ------------------------------------------*/
 /**
@@ -149,6 +156,11 @@ void BR_startRecordDistance(void);
  */
 float BR_getDistance(BR_Motor_ID_t motor); 
 
+/**
+ * @brief Get the pending command from CAN RX Fifo, if there is any
+ * 
+ */
+void BR_getCMDfromCAN(void);
 #ifdef __cplusplus
 }
 #endif

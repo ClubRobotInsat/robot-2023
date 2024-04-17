@@ -67,30 +67,7 @@ static void MX_FDCAN1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t dataToSend[8] = {0,0,0,0,0,0,0,0};
-void control_baseRoulant(void){
-	uint8_t * cmd = CAN_getRXData();
-	switch (cmd[0]){
-		case 0:
-		  BR_stopAllMotors();
-		  break;
-		case 1:
-		  CAN_sendBackPing(CAN_ID_MASTER);
-		  break;
-		case 2:
-		  BR_setPWM(cmd[1], 30);  // For test only, change to setSpeed after
-		  break;
-		case 3:
-		  break;
-		case 4:
-		  BR_setDirection(cmd[1], cmd[7]);
-		  break;
-		case 5:
-		  dataToSend[7] = (BR_getPWM(cmd[1]));  // For test only, change to getSpeed after
-		  CAN_send(dataToSend, 0, 1);           // DANGER !!! Risk of deprecated address, need to fix !!!
-		  break;
-	}
-}
+
 /* USER CODE END 0 */
 
 /**
@@ -126,13 +103,11 @@ int main(void)
   MX_TIM4_Init();
   MX_FDCAN1_Init();
   /* USER CODE BEGIN 2 */
-  BR_init(&htim2, TIM_CHANNEL_MOTOR_LEFT, &htim2, TIM_CHANNEL_MOTOR_RIGHT, DIR_MOTOR_1_GPIO_Port, DIR_MOTOR_1_Pin, DIR_MOTOR_2_GPIO_Port, DIR_MOTOR_2_Pin, &htim3, &htim4);
-  //CAN_filterConfig();
-  CAN_setReceiveCallback(control_baseRoulant);
-  CAN_initInterface(&hfdcan1);
-  CAN_filterConfig();
-  CAN_start();
+  BR_init(&htim2, TIM_CHANNEL_MOTOR_LEFT, &htim2, TIM_CHANNEL_MOTOR_RIGHT, DIR_MOTOR_1_GPIO_Port, DIR_MOTOR_1_Pin, DIR_MOTOR_2_GPIO_Port, DIR_MOTOR_2_Pin, &htim3, &htim4, &hfdcan1);
   BR_startAllMotors();
+
+  BR_setPWM(BR_MOTOR_LEFT, 50);
+  BR_setPWM(BR_MOTOR_RIGHT, 50);
 
   /* USER CODE END 2 */
 
@@ -141,8 +116,11 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    CAN_read();
-    HAL_Delay(10);
+    //BR_getCMDfromCAN();
+    s_left = BR_getSpeed(BR_MOTOR_LEFT);
+    s_right = BR_getSpeed(BR_MOTOR_RIGHT);
+
+    //HAL_Delay(10);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
