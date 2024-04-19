@@ -97,7 +97,8 @@ float Encoder_Left_Get_Speed(void);
 float Encoder_Right_Get_Speed(void);
 
 
-void Encoder_Interrupt(TIM_HandleTypeDef *htim);
+void Encoder_IC_Interrupt_Handler(TIM_HandleTypeDef *htim);
+void Encoder_Overflow_Interrupt_Handler(TIM_HandleTypeDef *htim);
 
 
 

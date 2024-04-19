@@ -7,7 +7,7 @@
   ******************************************************************************
 */
 
-#include "Encoder.h"
+#include "encoder.h"
 
 #define ENCODER_TIMER_PRESCALER				127
 #define ENCODER_TIMER_AUTORELOAD			65535
@@ -85,7 +85,7 @@ void Encoder_Start_Record_Distance (void){
 	position_right = 0;
 }
 
-void Encoder_Interrupt(TIM_HandleTypeDef *htim)
+void Encoder_IC_Interrupt_Handler(TIM_HandleTypeDef *htim)
 {
 	if (htim == ENCODER_LEFT_TIMER) {
 
@@ -108,7 +108,7 @@ void Encoder_Interrupt(TIM_HandleTypeDef *htim)
 }
 
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+void Encoder_Overflow_Interrupt_Handler(TIM_HandleTypeDef *htim)
 {
 	if (htim == ENCODER_LEFT_TIMER)
 	{

@@ -18,10 +18,10 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "base_roulant.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "base_roulant.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,6 +42,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
@@ -57,6 +58,7 @@ static void MX_GPIO_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
+static void MX_TIM1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -97,17 +99,24 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
+  MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
-  BR_init(&htim2, TIM_CHANNEL_MOTOR_LEFT, &htim2, TIM_CHANNEL_MOTOR_RIGHT, DIR_MOTOR_1_GPIO_Port, DIR_MOTOR_1_Pin, DIR_MOTOR_2_GPIO_Port, DIR_MOTOR_2_Pin, &htim3, &htim4);
+  BR_init(&htim1 ,&htim2, TIM_CHANNEL_MOTOR_LEFT, &htim2, TIM_CHANNEL_MOTOR_RIGHT, DIR_MOTOR_1_GPIO_Port, DIR_MOTOR_1_Pin, DIR_MOTOR_2_GPIO_Port, DIR_MOTOR_2_Pin, &htim3, &htim4);
   BR_setDirection(BR_MOTOR_LEFT, BR_DIRECTION_CW);
   BR_setDirection(BR_MOTOR_RIGHT, BR_DIRECTION_CW);
   BR_startAllMotors();
 
-//  BR_setPWM(BR_MOTOR_LEFT, 50);
-//  BR_setPWM(BR_MOTOR_RIGHT, 50);
+  //BR_setPWM(BR_MOTOR_LEFT, 50);
+  //BR_setPWM(BR_MOTOR_RIGHT, 50);
 //  HAL_Delay(10000);
-  BR_setSpeed(500.0);
-  BR_regulateSpeed();
+  BR_setSpeed(700.0);
+  HAL_Delay(5000);
+  BR_setSpeed(0.0);
+  HAL_Delay(5000);
+  BR_setSpeed(700.0);
+  HAL_Delay(5000);
+  BR_stopAllMotors();
+
   //BR_setPWM(BR_MOTOR_LEFT, 30);
   //BR_setPWM(BR_MOTOR_RIGHT, 30);
 
@@ -126,6 +135,7 @@ int main(void)
   {
 	  s_left = BR_getSpeed(BR_MOTOR_LEFT);
 	  s_right = BR_getSpeed(BR_MOTOR_RIGHT);
+	  s_left = __HAL_TIM_GET_COUNTER(&htim1);
 
     /* USER CODE END WHILE */
 
@@ -172,6 +182,53 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief TIM1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM1_Init(void)
+{
+
+  /* USER CODE BEGIN TIM1_Init 0 */
+
+  /* USER CODE END TIM1_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM1_Init 1 */
+
+  /* USER CODE END TIM1_Init 1 */
+  htim1.Instance = TIM1;
+  htim1.Init.Prescaler = 2;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim1.Init.Period = 3999;
+  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM1_Init 2 */
+
+  /* USER CODE END TIM1_Init 2 */
+
 }
 
 /**

@@ -1,6 +1,7 @@
 /**
  * @file base_roulant.h
- * @author Triet NGUYEN (tr_nguye@insa-toulouse.fr)
+ * @author 	Triet NGUYEN (tr_nguye@insa-toulouse.fr)
+ * 			Huong-Cam TANG (hctang@insa-toulouse.fr)
  * @brief Header file for the base roulant module
  * @version 0.1
  * @date 2021-03-14
@@ -21,6 +22,8 @@ extern "C" {
 #include "stm32g4xx_hal.h"
 #include "motor_dc.h"
 #include "encoder.h"
+
+/* ---------------------------STM configurations --------------------------------- */
 
 
 /* ---------------------------Pin configurations --------------------------------- */
@@ -65,6 +68,7 @@ extern float targetSpeedRight; //	mm/s
 /**
  * @brief Initialize the base roulant
  * 
+ * @param TIM_Regulate Timer for the regulate loop
  * @param TIM_Motor_Left Timer for the left motor
  * @param TIM_Channel_Motor_Left Timer Channel for the left motor
  * @param TIM_Motor_Right Timer for the right motor
@@ -76,7 +80,8 @@ extern float targetSpeedRight; //	mm/s
  * @param DIR_Port_Right GPIO Port for the direction pin of the right motor
  * @param DIR_Pin_Right GPIO Pin for the direction pin of the right motor
  */
-void BR_init(TIM_HandleTypeDef * TIM_Motor_Left,
+void BR_init(TIM_HandleTypeDef * TIM_Regulate,
+			TIM_HandleTypeDef * TIM_Motor_Left,
             uint32_t TIM_Channel_Motor_Left,     
             TIM_HandleTypeDef * TIM_Motor_Right,
             uint32_t TIM_Channel_Motor_Right, 
