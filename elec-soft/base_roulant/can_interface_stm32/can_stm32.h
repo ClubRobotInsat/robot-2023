@@ -58,9 +58,9 @@ extern "C" {
  * 2 : Base Roulante (Left + Right)
  * 3 : Base Roulante 2 (Front + Rear)
  * 4 : Bras + Storage
- * 6 : Sensors
+ * 5 : Sensors
  */
-#define CAN_ID_SRC 2
+#define CAN_ID_STM 2
 
 /**
  * ID of the Raspberry PI

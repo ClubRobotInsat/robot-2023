@@ -52,6 +52,7 @@ TIM_HandleTypeDef htim4;
 /* USER CODE BEGIN PV */
 float s_left = 0;
 float s_right = 0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -106,8 +107,8 @@ int main(void)
   BR_init(&htim2, TIM_CHANNEL_MOTOR_LEFT, &htim2, TIM_CHANNEL_MOTOR_RIGHT, DIR_MOTOR_1_GPIO_Port, DIR_MOTOR_1_Pin, DIR_MOTOR_2_GPIO_Port, DIR_MOTOR_2_Pin, &htim3, &htim4, &hfdcan1);
   BR_startAllMotors();
 
-  BR_setPWM(BR_MOTOR_LEFT, 50);
-  BR_setPWM(BR_MOTOR_RIGHT, 50);
+  //BR_setPWM(BR_MOTOR_LEFT, 50);
+  //BR_setPWM(BR_MOTOR_RIGHT, 50);
 
   /* USER CODE END 2 */
 
@@ -115,12 +116,15 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
-    //BR_getCMDfromCAN();
-    s_left = BR_getSpeed(BR_MOTOR_LEFT);
-    s_right = BR_getSpeed(BR_MOTOR_RIGHT);
 
-    //HAL_Delay(10);
+	  BR_getCMDfromCAN();
+	  //s_left = BR_getSpeed(BR_MOTOR_LEFT);
+	  //s_right = BR_getSpeed(BR_MOTOR_RIGHT);
+	  //HAL_Delay(10);
+	  HAL_Delay(10);
+    /* USER CODE END WHILE */
+
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

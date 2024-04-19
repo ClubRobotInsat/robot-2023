@@ -29,7 +29,7 @@ void CAN_initInterface(FDCAN_HandleTypeDef * hfdcan){
 void CAN_filterConfig(void)
 {
     /* Configure the global filter before configure the filter canfil, if not, the filter will reject everything */
-    if (HAL_FDCAN_ConfigGlobalFilter(canHandle, FDCAN_REJECT,FDCAN_REJECT, FDCAN_REJECT_REMOTE,FDCAN_REJECT_REMOTE) != HAL_OK)
+    if (HAL_FDCAN_ConfigGlobalFilter(canHandle, FDCAN_REJECT, FDCAN_REJECT, FDCAN_REJECT_REMOTE, FDCAN_REJECT_REMOTE) != HAL_OK)
     {
         CAN_errorHandler();
     }
@@ -38,8 +38,8 @@ void CAN_filterConfig(void)
     canfil.FilterIndex = 0;
     canfil.FilterType = FDCAN_FILTER_MASK;
     canfil.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
-    canfil.FilterID1 = 0x13;
-    canfil.FilterID2 = 0x13;
+    canfil.FilterID1 = CAN_ID_SRC << 4;
+    canfil.FilterID2 = 0xF0;						// Mask for dest_ID
 
     if (HAL_FDCAN_ConfigFilter(canHandle, &canfil) != HAL_OK)
     {

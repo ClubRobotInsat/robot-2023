@@ -173,11 +173,11 @@ void BR_executeCommandFromCAN(void){
 		case 3:
 		  break;
 		case 4:
-		  BR_setDirection(cmd[1], cmd[7]);
+		  BR_setDirection(cmd[1], cmd[2]);
 		  break;
 		case 5:
-		  dataToRaspi[1] = (BR_getPWM(cmd[1]));  // For test only, change to getSpeed after
-		  CAN_send(dataToRaspi, 0, 1);           // DANGER !!! Risk of deprecated address, need to fix !!!
+		  dataToRaspi[1] = (BR_getPWM(cmd[1]));  			// For test only, change to getSpeed after
+		  CAN_send(dataToRaspi, 0, CAN_ID_MASTER);          // DANGER !!! Risk of deprecated address, need to fix !!!
 		  break;
 	}
 }
