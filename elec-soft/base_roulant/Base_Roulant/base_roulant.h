@@ -52,6 +52,7 @@ typedef enum {
 typedef enum {
     BR_DIRECTION_CW = MOTOR_DIRECTION_CW,
     BR_DIRECTION_CCW = MOTOR_DIRECTION_CCW,
+    BR_DIRECTION_ERROR = -1,
 } BR_Direction_t;
 
 typedef enum {
@@ -73,17 +74,17 @@ typedef enum {
 /**
  * @brief Initialize the base roulant
  * 
- * @param TIM_Regulate Timer for the regulate loop
+ * @param TIM_Regulate Timer for the regulate loop (for sample time)
  * @param TIM_Motor_Left Timer for the left motor
  * @param TIM_Channel_Motor_Left Timer Channel for the left motor
  * @param TIM_Motor_Right Timer for the right motor
  * @param TIM_Channel_Motor_Right Timer Channel for the right motor
- * @param TIM_Encoder_Left Timer for the left encoder
- * @param TIM_Encoder_Right Timer for the right encoder
  * @param DIR_Port_Left GPIO Port for the direction pin of the left motor
  * @param DIR_Pin_Left GPIO Pin for the direction pin of the left motor
  * @param DIR_Port_Right GPIO Port for the direction pin of the right motor
  * @param DIR_Pin_Right GPIO Pin for the direction pin of the right motor
+ * @param TIM_Encoder_Left Timer for the left encoder
+ * @param TIM_Encoder_Right Timer for the right encoder
  * @param hfdcan Handle of the CAN peripheral
  */
 void BR_init(TIM_HandleTypeDef * TIM_Regulate,
@@ -100,6 +101,12 @@ void BR_init(TIM_HandleTypeDef * TIM_Regulate,
             FDCAN_HandleTypeDef * hfdcan);
 
 /* ----------------------------- API ------------------------------------------*/
+/**
+ * @brief Get the pending command from CAN RX Fifo, if there is any and execute it
+ * 
+ */
+void BR_getCMDfromCAN(void);
+
 /**
  * @brief Start all the motors at speed 0
  */
@@ -127,6 +134,19 @@ void BR_setDirection(BR_Motor_ID_t motor, BR_Direction_t direction);
 void BR_setPWM(BR_Motor_ID_t motor, uint8_t pwm);
 
 /**
+ * @brief Set the target speed of the motor
+ * 
+ * @param speed Speed of the motor in mm/s
+ */
+void BR_setSpeed(float speed);
+
+/**
+ * @brief Regulate the speed of the motor
+ *
+ */
+void BR_regulateSpeed(void);
+
+/**
  * @brief Get the speed of the motor
  * 
  * @param motor ID of the motor
@@ -150,6 +170,8 @@ uint8_t BR_getPWM(BR_Motor_ID_t motor);
  */
 BR_Direction_t BR_getDirection(BR_Motor_ID_t motor);
 
+/*--------------------------------------------------------------------*/
+/* Use only when TIM encoders are configure in Counting Mode */
 /**
  * @brief Start recording the distance
  * 
@@ -164,19 +186,7 @@ void BR_startRecordDistance(void);
  */
 float BR_getDistance(BR_Motor_ID_t motor); 
 
-/**
- * @brief Regulate the speed of the motor
- *
- */
-void BR_regulateSpeed(void);
 
-void BR_setSpeed(float speed);
-
-/**
- * @brief Get the pending command from CAN RX Fifo, if there is any
- * 
- */
-void BR_getCMDfromCAN(void);
 #ifdef __cplusplus
 }
 #endif

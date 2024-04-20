@@ -21,7 +21,7 @@ extern "C" {
 /* Include */
 #include <stdint.h>
 #include <stdbool.h>
-
+#include "stm32g4xx_hal.h"
 /*
 * The configuration of the CAN peripheral on the STM32 is done using the STM32CubeMX software.
 * STM32 Configurations required (with MCP2551):
@@ -58,14 +58,22 @@ extern "C" {
  * 2 : Base Roulante (Left + Right)
  * 3 : Base Roulante 2 (Front + Rear)
  * 4 : Bras + Storage
- * 6 : Sensors
+ * 5 : Sensors
  */
-#define CAN_ID_SRC 7
+extern uint8_t CAN_ID_STM;
 
 /**
  * ID of the Raspberry PI
  */
 #define CAN_ID_MASTER 1
+
+/**
+ * @brief Pass the CAN handle to the interface.
+ * 
+ * @param hfdcan Handle of the CAN peripheral.
+ * @return None
+ */
+void CAN_initInterface(FDCAN_HandleTypeDef * hfdcan);
 
 /**
  * @brief Configure the filter for the CAN peripheral. Required after the initialization of the CAN peripheral.
@@ -129,7 +137,7 @@ uint8_t * CAN_getRXData(void);
 uint8_t CAN_decodeIDSrc(void);
 
 /**
- * @brief Send a ping message.
+ * @brief Send a ping message. !!!DANGER!!! Risk of deprecated address. Need to fix.
  * 
  * @param destID ID of the receiver.
  * 

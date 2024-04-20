@@ -60,7 +60,7 @@ extern "C" {
  * 4 : Bras + Storage
  * 5 : Sensors
  */
-#define CAN_ID_STM 2
+extern uint8_t CAN_ID_STM;
 
 /**
  * ID of the Raspberry PI

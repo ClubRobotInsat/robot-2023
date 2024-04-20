@@ -7,26 +7,43 @@
  */
 
 #include "can_stm32.h"
-#include "stm32g4xx_hal.h"
 
 /**
  * Variable to handling the CAN interface
  */
-FDCAN_HandleTypeDef * canHandle;
+FDCAN_HandleTypeDef * canHandle = NULL;
 FDCAN_RxHeaderTypeDef rxHeader; /* The rxHeader does not need to be constructed , it is only filled in when Rx messages are read */
 FDCAN_TxHeaderTypeDef txHeader;
 FDCAN_FilterTypeDef canfil;
 
+/*
+ * CAN ID of the STM32 <-- CHANGE THIS ACCORDING TO THE STM32 using CAN_Init()
+ * ID for CDF2024 :
+ * 0 : Urgency
+ * 1 : Raspy
+ * 2 : Base Roulante (Left + Right)
+ * 3 : Base Roulante 2 (Front + Rear)
+ * 4 : Bras + Storage
+ * 5 : Sensors
+ */
+uint8_t CAN_ID_STM = 0;
+
+/* CAN data buffers */
 uint8_t canRX[8] = {0,0,0,0,0,0,0,0};   
 uint8_t canTX[8] = {0,0,0,0,0,0,0,0};
 void (*CAN_receiveCallback)(void);
 
 void CAN_errorHandler(void);
 
+void CAN_initInterface(FDCAN_HandleTypeDef * hfdcan, uint8_t idSTM){
+    canHandle = hfdcan;
+    CAN_ID_STM = idSTM;
+}
+
 void CAN_filterConfig(void)
 {
     /* Configure the global filter before configure the filter canfil, if not, the filter will reject everything */
-    if (HAL_FDCAN_ConfigGlobalFilter(canHandle, FDCAN_REJECT,FDCAN_REJECT, FDCAN_REJECT_REMOTE,FDCAN_REJECT_REMOTE) != HAL_OK)
+    if (HAL_FDCAN_ConfigGlobalFilter(canHandle, FDCAN_REJECT, FDCAN_REJECT, FDCAN_REJECT_REMOTE, FDCAN_REJECT_REMOTE) != HAL_OK)
     {
         CAN_errorHandler();
     }
@@ -35,8 +52,8 @@ void CAN_filterConfig(void)
     canfil.FilterIndex = 0;
     canfil.FilterType = FDCAN_FILTER_MASK;
     canfil.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
-    canfil.FilterID1 = 0x13;
-    canfil.FilterID2 = 0x13;
+    canfil.FilterID1 = CAN_ID_STM << 4;
+    canfil.FilterID2 = 0xF0;						// Mask for dest_ID
 
     if (HAL_FDCAN_ConfigFilter(canHandle, &canfil) != HAL_OK)
     {
@@ -65,7 +82,7 @@ void CAN_start(void)
 
 void CAN_makeHeader(uint8_t priority, uint8_t destID)
 {
-    uint32_t identifier = ((priority & 0x07) << 8) | ((destID & 0x0F) << 4) | (CAN_ID_SRC & 0x0F);
+    uint32_t identifier = ((priority & 0x07) << 8) | ((destID & 0x0F) << 4) | (CAN_ID_STM & 0x0F);
 	// Make tx
 	txHeader.Identifier = identifier;
 	txHeader.IdType = FDCAN_STANDARD_ID;
@@ -121,7 +138,7 @@ uint8_t CAN_decodeIDSrc(void)
 
 void CAN_sendBackPing(uint8_t destID) {
 	uint8_t data[8] = {1,0,0,0,0,0,0,0};
-	CAN_send(data, 1, CAN_ID_SRC);
+	CAN_send(data, 1, CAN_ID_STM);
 }
 
 void CAN_errorHandler(void)

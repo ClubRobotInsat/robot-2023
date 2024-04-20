@@ -17,9 +17,10 @@
 #define BR_SPEED_LIMIT_PWM	90.0
 #define BR_SPEED_LIMIT_MM_S	900.0
 #define BR_SPEED_CORRECTOR_THRESHOLD  30.0			// uncertainty : +/- 30 mm/s
-#define BR_SPEED_CORRECTOR_KP			1.0
-#define BR_SPEED_CORRECTOR_KPD			0.9
+#define BR_SPEED_CORRECTOR_KP			0.8
+#define BR_SPEED_CORRECTOR_KPD			0.0
 #define BR_SPEED_CORRECTOR_KPI			0.003
+#define BR_SPEED_STOP_THRESHOLD		10.0 		// Under 10.0 mm/s, the regulation loop is turned off
 /* Global variables ----------------------------------------------------------*/
 Motor_Config motor_left;
 Motor_Config motor_right;
@@ -36,13 +37,14 @@ float regulatedSpeedRight;	//	mm/s
 float applySpeedLeft;		//	mm/s
 float applySpeedRight;		//	mm/s
 
-// Derivative term
+// Derivative term for speed correction
 float dkLeft;
 float dkRight;
 
-// Integral term
+// Integral term for speed correction
 float ikLeft;
 float ikRight;
+
 /**
  * @brief Error Handler for the base roulant
  *
@@ -61,8 +63,8 @@ void BR_init(TIM_HandleTypeDef * TIM_Regulate,TIM_HandleTypeDef * TIM_Motor_Left
     /* Initialize the motors */
     Motor_Init(&motor_left, DIR_Port_Left, DIR_Pin_Left, TIM_Motor_Left, TIM_Channel_Motor_Left);
     Motor_Init(&motor_right, DIR_Port_Right, DIR_Pin_Right, TIM_Motor_Right, TIM_Channel_Motor_Right);
-
     Timer_Regulate = TIM_Regulate;
+	/* Init CAN interface */
     CAN_initInterface(hfdcan);
     CAN_filterConfig();
     CAN_setReceiveCallback(BR_executeCommandFromCAN);
@@ -179,7 +181,7 @@ BR_Direction_t BR_getDirection(BR_Motor_ID_t motor){
     else {
         /* Error handler to add*/
         BR_errorHandler(BR_ERROR_MOTOR_ID);
-        return 0;
+        return BR_DIRECTION_ERROR;
     }
 }
 
@@ -223,7 +225,6 @@ void BR_regulateSpeed(void){
     float currentSpeedRight = BR_getSpeed(BR_MOTOR_RIGHT);
     float errorLeft;
     float errorRight;
-
 
 	if((currentSpeedLeft < 0.0) ||(currentSpeedRight < 0.0))
 	{	
@@ -303,24 +304,35 @@ void BR_getCMDfromCAN(void){
 void BR_executeCommandFromCAN(void){
 	uint8_t * cmd = CAN_getRXData();
     uint8_t dataToRaspi[8] = {0,0,0,0,0,0,0,0};
+    float speed;
 	switch (cmd[0]){
 		case 0:
-		  BR_stopAllMotors();
-		  break;
+			BR_stopAllMotors();
+			break;
 		case 1:
-		  CAN_sendBackPing(CAN_ID_MASTER);
-		  break;
+			CAN_sendBackPing(CAN_ID_MASTER);
+			break;
 		case 2:
-		  BR_setPWM(cmd[1], 30);  // For test only, change to setSpeed after
-		  break;
+			BR_startAllMotors();
+			break;
 		case 3:
+			speed = (float)((cmd[2] << 8) + cmd[3]) / 10.0;
+			BR_setSpeed(speed);  // For test only, change to setSpeed after
 		  break;
 		case 4:
-		  BR_setDirection(cmd[1], cmd[2]);
-		  break;
+			speed = (float)((cmd[2] << 8) + cmd[3]) / 10.0;
+			BR_setSpeed(speed);  // For test only, change to setSpeed after
+			break;
 		case 5:
-		  dataToRaspi[1] = (BR_getPWM(cmd[1]));  			// For test only, change to getSpeed after
-		  CAN_send(dataToRaspi, 0, CAN_ID_MASTER);          // DANGER !!! Risk of deprecated address, need to fix !!!
+			BR_setDirection(cmd[1], cmd[2]);
+			break;
+		case 6:
+			dataToRaspi[0] = 0x05;
+			dataToRaspi[1] = cmd[1];
+			speed = BR_getSpeed(cmd[1]) / 10.0;
+			dataToRaspi[2] = (speed && 0xFF00);
+			dataToRaspi[3] = (speed && 0x00FF);
+			CAN_send(dataToRaspi, 1, CAN_ID_MASTER);
 		  break;
 	}
 }
