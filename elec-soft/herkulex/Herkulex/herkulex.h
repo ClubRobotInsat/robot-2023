@@ -2,7 +2,7 @@
  * @file herkulex.h
  * @author Triet NGUYEN (tr_nguye@insa-toulouse.fr)
  * @brief Header of library to control a Herkulex servo motor
- * @version 0.1
+ * @version 0.2 : Add function to write to RAM 
  * @date 2024-01-04
  *
  * @copyright Copyright (c) 2024
@@ -334,7 +334,7 @@ Herkulex_StatusTypedef Herkulex_getCurrentMode(Herkulex_Struct * servos, uint8_t
  * @param servoID ID of the servo to get ID
  * @return uint8_t ID of the servo
  */
-uint8_t Herkulex_getID(Herkulex_Struct * servos, uint8_t servoID);
+//uint8_t Herkulex_getID(Herkulex_Struct * servos, uint8_t servoID);
 
 /**
  * @fn uint8_t Herkulex_getID_EEP(Herkulex_Struct*, uint8_t)
@@ -344,7 +344,7 @@ uint8_t Herkulex_getID(Herkulex_Struct * servos, uint8_t servoID);
  * @param servoID ID of the servo to get ID
  * @return uint8_t ID of the servo
  */
-uint8_t Herkulex_getID_EEP(Herkulex_Struct * servos, uint8_t servoID);
+//uint8_t Herkulex_getID_EEP(Herkulex_Struct * servos, uint8_t servoID);
 
 /**
  * @fn uint8_t Herkulex_getACKpolicy(Herkulex_Struct*, uint8_t)
@@ -355,7 +355,7 @@ uint8_t Herkulex_getID_EEP(Herkulex_Struct * servos, uint8_t servoID);
  * @return uint8_t ACK policy of the servo
  * 				   can be one on the list: HERKULEX_ACK_MODE
  */
-uint8_t Herkulex_getACKpolicy(Herkulex_Struct * servos, uint8_t servoID);
+//uint8_t Herkulex_getACKpolicy(Herkulex_Struct * servos, uint8_t servoID);
 
 /**
  * @fn uint8_t Herkulex_getTorquePolicy(Herkulex_Struct*, uint8_t)
@@ -368,7 +368,7 @@ uint8_t Herkulex_getACKpolicy(Herkulex_Struct * servos, uint8_t servoID);
  * 						0x40 : Torque BREAK
  * 						0x60 : Torque ON
  */
-uint8_t Herkulex_getTorquePolicy(Herkulex_Struct * servos, uint8_t servoID);
+//uint8_t Herkulex_getTorquePolicy(Herkulex_Struct * servos, uint8_t servoID);
 
 /**
  * @fn uint16_t Herkulex_getMinPosition(Herkulex_Struct*, uint8_t)
@@ -380,7 +380,7 @@ uint8_t Herkulex_getTorquePolicy(Herkulex_Struct * servos, uint8_t servoID);
  * @param servoID ID of the servo to get min position
  * @return uint16_t Min position of the servo. Default is 0x15 (-159.8 degree)
  */
-uint16_t Herkulex_getMinPosition(Herkulex_Struct * servos, uint8_t servoID);
+//uint16_t Herkulex_getMinPosition(Herkulex_Struct * servos, uint8_t servoID);
 
 /**
  * @fn uint16_t Herkulex_getMaxPosition(Herkulex_Struct*, uint8_t)
@@ -392,7 +392,7 @@ uint16_t Herkulex_getMinPosition(Herkulex_Struct * servos, uint8_t servoID);
  * @param servoID ID of the servo to get max position
  * @return uint16_t Max position of the servo. Default is 0x3EA (159.8 degree)
  */
-uint16_t Herkulex_getMaxPosition(Herkulex_Struct * servos, uint8_t servoID);
+//uint16_t Herkulex_getMaxPosition(Herkulex_Struct * servos, uint8_t servoID);
 
 /**
  * @fn uint8_t Herkulex_getLed(Herkulex_Struct*, uint8_t)
@@ -402,7 +402,7 @@ uint16_t Herkulex_getMaxPosition(Herkulex_Struct * servos, uint8_t servoID);
  * @param servoID ID of the servo to get LED
  * @return uint8_t LED of the servo, can be one on the list: HERKULEX_LED
  */
-uint8_t Herkulex_getLed(Herkulex_Struct * servos, uint8_t servoID);
+//uint8_t Herkulex_getLed(Herkulex_Struct * servos, uint8_t servoID);
 
 
 /*	****************************************************************************************************************
@@ -416,7 +416,7 @@ uint8_t Herkulex_getLed(Herkulex_Struct * servos, uint8_t servoID);
  * @param ID_Old Old ID of the servo
  * @param ID_New New ID of the servo
  */
-void Herkulex_setID(Herkulex_Struct * servos, uint8_t ID_Old, uint8_t ID_New);
+//void Herkulex_setID(Herkulex_Struct * servos, uint8_t ID_Old, uint8_t ID_New);
 
 /**
  * @fn uint8_t Herkulex_setID_EEP(Herkulex_Struct*, uint8_t, uint8_t)
@@ -426,7 +426,7 @@ void Herkulex_setID(Herkulex_Struct * servos, uint8_t ID_Old, uint8_t ID_New);
  * @param ID_Old Old ID of the servo
  * @param ID_New New ID of the servo
  */
-void Herkulex_setID_EEP(Herkulex_Struct * servos, uint8_t ID_Old, uint8_t ID_New);
+//void Herkulex_setID_EEP(Herkulex_Struct * servos, uint8_t ID_Old, uint8_t ID_New);
 
 /**
  * @fn void Herkulex_setMinPosition(Herkulex_Struct*, uint8_t, uint16_t)
@@ -436,7 +436,7 @@ void Herkulex_setID_EEP(Herkulex_Struct * servos, uint8_t ID_Old, uint8_t ID_New
  * @param servoID ID of the servo to set min position
  * @param minPosition Min position to set, can be from 0 to 1023
  */
-void Herkulex_setMinPosition(Herkulex_Struct * servos, uint8_t servoID, uint16_t minPosition);
+//void Herkulex_setMinPosition(Herkulex_Struct * servos, uint8_t servoID, uint16_t minPosition);
 
 /**
  * @fn void Herkulex_setMaxPosition(Herkulex_Struct*, uint8_t, uint16_t)
@@ -446,7 +446,7 @@ void Herkulex_setMinPosition(Herkulex_Struct * servos, uint8_t servoID, uint16_t
  * @param servoID ID of the servo to set max position
  * @param maxPosition Max position to set, can be from 0 to 1023
  */
-void Herkulex_setMaxPosition(Herkulex_Struct * servos, uint8_t servoID, uint16_t maxPosition);
+//void Herkulex_setMaxPosition(Herkulex_Struct * servos, uint8_t servoID, uint16_t maxPosition);
 
 /**
  * @fn void Herkulex_setLed(Herkulex_Struct*, uint8_t, uint8_t)
@@ -455,8 +455,9 @@ void Herkulex_setMaxPosition(Herkulex_Struct * servos, uint8_t servoID, uint16_t
  * @param servos Herkulex_Struct Handler for all servos on a serial link
  * @param servoID ID of the servo to set LED
  * @param valueLed LED to set, can be one on the list: HERKULEX_LED
+ * @return Herkulex_StatusTypedef Status of the function
  */
-void Herkulex_setLed(Herkulex_Struct * servos, uint8_t servoID, uint8_t valueLed);
+Herkulex_StatusTypedef Herkulex_setLed(Herkulex_Struct * servos, uint8_t servoID, uint8_t valueLed);
 
 /*	****************************************************************************************************************
 	Functions to Read the servo RAM and EEPROM
@@ -474,7 +475,7 @@ void Herkulex_setLed(Herkulex_Struct * servos, uint8_t servoID, uint8_t valueLed
  */
 Herkulex_StatusTypedef Herkulex_readRAM(Herkulex_Struct * servos, uint8_t servoID, Herkulex_RAM_Address_t addr, uint8_t lengthToRead, uint16_t * ptrResult);
 
-uint16_t Herkulex_readEEP(Herkulex_Struct * servos, uint8_t servoID, Herkulex_EEP_Address_t EEPaddress);
+//uint16_t Herkulex_readEEP(Herkulex_Struct * servos, uint8_t servoID, Herkulex_EEP_Address_t EEPaddress);
 
 /*	****************************************************************************************************************
 	Functions to Write to the servo RAM and EEPROM
@@ -486,9 +487,11 @@ uint16_t Herkulex_readEEP(Herkulex_Struct * servos, uint8_t servoID, Herkulex_EE
  * @param servos Herkulex_Struct Handler for all servos on a serial link
  * @param servoID ID of the servo to write RAM
  * @param RAMaddress Address of the RAM registry to write. Can be a value on the list: Herkulex_RAM_Address_t
- * @param writeByte Value to write in the RAM registry
+ * @param data Pointer to data to write in the RAM registry
+ * @param lengthToWrite Number of bytes to write
+ * @return Herkulex_StatusTypedef Status of the function
  */
-void Herkulex_writeRAM(Herkulex_Struct * servos, uint8_t servoID, Herkulex_RAM_Address_t RAMaddress, uint8_t writeByte);
+Herkulex_StatusTypedef Herkulex_writeRAM(Herkulex_Struct * servos, uint8_t servoID, Herkulex_RAM_Address_t RAMaddress, uint8_t * data, uint8_t lengthToWrite);
 
 /**
  * @fn void Herkulex_writeEEP(Herkulex_Struct*, uint8_t, uint8_t, uint8_t)
@@ -499,10 +502,11 @@ void Herkulex_writeRAM(Herkulex_Struct * servos, uint8_t servoID, Herkulex_RAM_A
  * @param EEPaddress Address of the EEPROM registry to write. Can be a value on the list: Herkulex_EEP_Address_t
  * @param writeByte Value to write in the EEPROM registry
  */
-void Herkulex_writeEEP(Herkulex_Struct * servos, uint8_t servoID, Herkulex_EEP_Address_t EEPaddress, uint8_t writeByte);
+//void Herkulex_writeEEP(Herkulex_Struct * servos, uint8_t servoID, Herkulex_EEP_Address_t EEPaddress, uint8_t writeByte);
 
 /*-----------------------------------------------------------------------------------------*/
 // TODO
+/*
 uint8_t  Herkulex_model(Herkulex_Struct * servos);
 
 
@@ -511,9 +515,9 @@ void  Herkulex_moveAll(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal,
 void  Herkulex_moveSpeedAll(Herkulex_Struct * servos, uint8_t servoID, uint16_t Goal, uint8_t iLed);
 void  Herkulex_moveAllAngle(Herkulex_Struct * servos, uint8_t servoID, float angle, uint8_t iLed);
 void  Herkulex_actionAll(Herkulex_Struct * servos, uint8_t pTime);
-
+*/
 #ifdef __cplusplus
 extern "C" }
 #endif
 
-#endif /* HERKULEX_H_ */
+#endif /* HERKULEX_H */

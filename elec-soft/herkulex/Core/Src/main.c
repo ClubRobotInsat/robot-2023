@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "herkulex.h"
+#include "bras.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,7 +47,7 @@ UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-uint16_t pos1, pos2;
+uint16_t pos_epaule, pos_coude, pos_poignet;
 uint8_t result;
 uint8_t status;
 /* USER CODE END PV */
@@ -98,24 +99,49 @@ int main(void)
   MX_TIM2_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+
+  BRAS_init(&huart2, &htim2, TIM_CHANNEL_1);
+  BRAS_moveHomePosition();
+  BRAS_moveReadyPosition();
+  BRAS_grab();
+  BRAS_movePutInStock();
+  //BRAS_moveHomePosition();
+  
+
+
+/*
   Herkulex_initCommunication(&servos, &huart1);
-  Herkulex_reboot(&servos, 7);
+  Herkulex_reboot(&servos, 2);
+  Herkulex_reboot(&servos, 11);
+  Herkulex_reboot(&servos, 1);
   Herkulex_reboot(&servos, 10);
   Herkulex_initServos(&servos);
 
-  Herkulex_moveOne(&servos, 7, 50, HERKULEX_LED_PINK);
+  Herkulex_setLed(&servos, 10, HERKULEX_LED_PINK);
+  Herkulex_moveOne(&servos, 10, 200, HERKULEX_LED_CYAN);
+  HAL_Delay(1000);
+  //Herkulex_getPosition(&servos, 2, &pos_epaule);
+  //Herkulex_getPosition(&servos, 11, &pos_coude);
+  //Herkulex_getPosition(&servos, 1, &pos_poignet);
+  Herkulex_getPosition(&servos, 10, &pos_poignet);
+
+  Herkulex_setLed(&servos, 10, HERKULEX_LED_GREEN);
+*/
+  /*
+  Herkulex_moveOne(&servos, 11, 20, HERKULEX_LED_PINK);
   HAL_Delay(2000);
-  Herkulex_getPosition(&servos, 7, &pos1);
-  status = Herkulex_getStatusDetail(&servos, 7, &result);
+  Herkulex_getPosition(&servos, 11, &pos_epaule);
+  status = Herkulex_getStatusDetail(&servos, 11, &result);
+  */
   /*
   Herkulex_moveOne(&servos, 7, 500, 60, HERKULEX_LED_BLUE);
   HAL_Delay(2000);
   pos1 = Herkulex_getPosition(&servos, 7);
    */
-
+  /*
   Herkulex_changeMode(&servos, 10, HERKULEX_MODE_CONTINUOUS);
   status = Herkulex_getCurrentMode(&servos, 10, &result);
-  Herkulex_rotateOne(&servos, 10, -500, HERKULEX_LED_GREEN);
+  Herkulex_rotateOne(&servos, 10, -900, HERKULEX_LED_GREEN);
   HAL_Delay(2000);
 
   //angle = Herkulex_getAngle(&servos, 7);
@@ -127,6 +153,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  /*
+		  HAL_Delay(1000);
+		  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 3);
+		  HAL_Delay(1000);
+		  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 6);
+	  */
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -194,9 +226,9 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 0;
+  htim2.Init.Prescaler = 3199;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 4.294967295E9;
+  htim2.Init.Period = 99;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)

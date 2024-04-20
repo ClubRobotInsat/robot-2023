@@ -2,7 +2,7 @@
  * @file herkulexMessageBuilder.h
  * @author Triet NGUYEN (tr_nguye@insa-toulouse.fr)
  * @brief  This file contains the function to build the message to send to the Herkulex servo motor
- * @version 0.1
+ * @version 0.2 : Basics functions to build the message - lack of HEEPWRITE, HEEPREAD, HROLLBACK
  * @date 2024-02-27
  * 
  * @copyright Copyright (c) 2024
@@ -161,6 +161,15 @@ uint8_t HMB_reboot(uint8_t *pPackage, uint8_t servoID);
 uint8_t HMB_ramWrite(uint8_t *pPackage, uint8_t servoID, Herkulex_RAM_Address_t startAddress, uint8_t *data, uint8_t lenghtData);
 
 /* --------------------------- HRAMREAD ------------------------------------ */
+/**
+ * @brief Message for HRAMREAD command
+ * 
+ * @param pPackage package to write in the message
+ * @param servoID  ID of the servo
+ * @param startAddress  Start address to read
+ * @param lenghtData  Lenght of data to read
+ * @return uint8_t size of the package to send
+ */
 uint8_t HMB_ramRead(uint8_t *pPackage, uint8_t servoID, Herkulex_RAM_Address_t startAddress, uint8_t lenghtData);
 
 /* --------------------------- HSJOG --------------------------------------- */
@@ -188,10 +197,37 @@ uint8_t HMB_sJog(uint8_t *pPackage, uint8_t servoID, uint8_t pTime, uint8_t goal
 uint8_t HMB_stat(uint8_t *pPackage, uint8_t servoID);
 
 /* --------------------------- HEEPWRITE ------------------------------------ */
-
+/**
+ * @brief Message for HEEPWRITE command
+ * 
+ * @param pPackage package to write in the message
+ * @param servoID  ID of the servo
+ * @param startAddress  Start address to write
+ * @param data  Data to write
+ * @param lenghtData  Lenght of data to write
+ * @return uint8_t size of the package to send
+ */
+uint8_t HMB_eepWrite(uint8_t *pPackage, uint8_t servoID, Herkulex_EEP_Address_t startAddress, uint8_t *data, uint8_t lenghtData);
 /* --------------------------- HEEPREAD ------------------------------------ */
-
+/**
+ * @brief Message for HEEPREAD command
+ * 
+ * @param pPackage package to write in the message
+ * @param servoID  ID of the servo
+ * @param startAddress  Start address to read
+ * @param lenghtData  Lenght of data to read
+ * @return uint8_t size of the package to send
+ */
+uint8_t HMB_eepRead(uint8_t *pPackage, uint8_t servoID, Herkulex_EEP_Address_t startAddress, uint8_t lenghtData);
 /* --------------------------- HROLLBACK ------------------------------------ */
+/**
+ * @brief Message for HROLLBACK command
+ * 
+ * @param pPackage package to write in the message
+ * @param servoID  ID of the servo
+ * @return uint8_t size of the package to send
+ */
+uint8_t HMB_roolback(uint8_t *pPackage, uint8_t servoID);
 
 #ifdef __cplusplus
 extern "C" }

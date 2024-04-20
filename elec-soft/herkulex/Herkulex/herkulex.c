@@ -1,5 +1,5 @@
 /**
- * @file herkulex.h
+ * @file herkulex.c
  * @author Triet NGUYEN (tr_nguye@insa-toulouse.fr)
  * @brief Library to control a Herkulex servo motor
  * @version 0.1
@@ -18,7 +18,7 @@
 
 /* TIMEOUT limit for serial communication */
 #define HERKULEX_SEND_TIMEOUT 500	/* Timeout duration when send data through serial port*/
-#define HERKULEX_RECEIVE_TIMEOUT 500	/* Timeout duration when receive data through serial port*/
+#define HERKULEX_RECEIVE_TIMEOUT 1000	/* Timeout duration when receive data through serial port*/
 
 
 
@@ -344,6 +344,20 @@ Herkulex_StatusTypedef Herkulex_getCurrentMode(Herkulex_Struct * servos, uint8_t
 	return Herkulex_readRAM(servos, servoID, RAM_CURRENT_CONTROL_MODE, 1, (uint16_t *)ptrResult);
 }
 
+/*	****************************************************************************************************************
+	Functions to Configure the servo
+*************************************************************************************************************** */
+
+
+Herkulex_StatusTypedef Herkulex_setLed(Herkulex_Struct * servos, uint8_t servoID, uint8_t valueLed){
+	return Herkulex_writeRAM(servos, servoID, RAM_LED_CONTROL, &valueLed, 1);
+}
+
+
+/*	****************************************************************************************************************
+	Functions to Read the servo RAM and EEPROM
+*************************************************************************************************************** */
+
 Herkulex_StatusTypedef Herkulex_readRAM(Herkulex_Struct * servos, uint8_t servoID, Herkulex_RAM_Address_t addr, uint8_t lengthToRead, uint16_t * ptrResult){
 	uint8_t size_receivedPackage = 11+lengthToRead;
 	uint8_t size_receivedData = 4+lengthToRead;
@@ -382,4 +396,13 @@ Herkulex_StatusTypedef Herkulex_readRAM(Herkulex_Struct * servos, uint8_t servoI
 	} else {
 		return Herkulex_ErrorReceiveFailed;					//Message not received (timeout)
 	};
+}
+
+/*	****************************************************************************************************************
+	Functions to Write to the servo RAM and EEPROM
+*************************************************************************************************************** */
+Herkulex_StatusTypedef Herkulex_writeRAM(Herkulex_Struct * servos, uint8_t servoID, Herkulex_RAM_Address_t RAMaddress, uint8_t * data, uint8_t lengthToWrite){	
+	uint8_t package_sizeToSend;
+	package_sizeToSend = HMB_ramWrite(servos->package, HERKULEX_BROADCAST_ID, RAMaddress, data, lengthToWrite);
+	return Herkulex_sendData(servos, package_sizeToSend);
 }
