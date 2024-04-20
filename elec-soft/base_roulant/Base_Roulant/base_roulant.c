@@ -48,11 +48,14 @@ float ikRight;
  *
  * @param error Error code
  */
-void BR_errorHandler(BR_Error_t error){
+void BR_errorHandler(BR_Error_t error);
 
-}
+/**
+ * @brief Execute the command from CAN
+ */
+void BR_executeCommandFromCAN(void);
 
-void BR_init(TIM_HandleTypeDef * TIM_Regulate,TIM_HandleTypeDef * TIM_Motor_Left, uint32_t TIM_Channel_Motor_Left, TIM_HandleTypeDef * TIM_Motor_Right, uint32_t TIM_Channel_Motor_Right, GPIO_TypeDef * DIR_Port_Left, uint16_t DIR_Pin_Left, GPIO_TypeDef * DIR_Port_Right, uint16_t DIR_Pin_Right,  TIM_HandleTypeDef * TIM_Encoder_Left, TIM_HandleTypeDef * TIM_Encoder_Right){
+void BR_init(TIM_HandleTypeDef * TIM_Regulate,TIM_HandleTypeDef * TIM_Motor_Left, uint32_t TIM_Channel_Motor_Left, TIM_HandleTypeDef * TIM_Motor_Right, uint32_t TIM_Channel_Motor_Right, GPIO_TypeDef * DIR_Port_Left, uint16_t DIR_Pin_Left, GPIO_TypeDef * DIR_Port_Right, uint16_t DIR_Pin_Right,  TIM_HandleTypeDef * TIM_Encoder_Left, TIM_HandleTypeDef * TIM_Encoder_Right, FDCAN_HandleTypeDef * hfdcan){
     /* Initialize the encoders */
     Encoder_Init(TIM_Encoder_Left, TIM_Encoder_Right);
     /* Initialize the motors */
@@ -60,6 +63,10 @@ void BR_init(TIM_HandleTypeDef * TIM_Regulate,TIM_HandleTypeDef * TIM_Motor_Left
     Motor_Init(&motor_right, DIR_Port_Right, DIR_Pin_Right, TIM_Motor_Right, TIM_Channel_Motor_Right);
 
     Timer_Regulate = TIM_Regulate;
+    CAN_initInterface(hfdcan);
+    CAN_filterConfig();
+    CAN_setReceiveCallback(BR_executeCommandFromCAN);
+    CAN_start();
     HAL_Delay(100);
 }
 
@@ -289,4 +296,35 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 }
 
 
+void BR_getCMDfromCAN(void){
+    CAN_read();
+}
 
+void BR_executeCommandFromCAN(void){
+	uint8_t * cmd = CAN_getRXData();
+    uint8_t dataToRaspi[8] = {0,0,0,0,0,0,0,0};
+	switch (cmd[0]){
+		case 0:
+		  BR_stopAllMotors();
+		  break;
+		case 1:
+		  CAN_sendBackPing(CAN_ID_MASTER);
+		  break;
+		case 2:
+		  BR_setPWM(cmd[1], 30);  // For test only, change to setSpeed after
+		  break;
+		case 3:
+		  break;
+		case 4:
+		  BR_setDirection(cmd[1], cmd[2]);
+		  break;
+		case 5:
+		  dataToRaspi[1] = (BR_getPWM(cmd[1]));  			// For test only, change to getSpeed after
+		  CAN_send(dataToRaspi, 0, CAN_ID_MASTER);          // DANGER !!! Risk of deprecated address, need to fix !!!
+		  break;
+	}
+}
+
+void BR_errorHandler(BR_Error_t error){
+    /* Error handling to implement */
+}
