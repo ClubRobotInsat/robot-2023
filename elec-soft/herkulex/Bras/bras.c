@@ -57,13 +57,13 @@ void BRAS_moveHomePosition(){
 }
 
 void BRAS_moveReadyPosition(){
-    Herkulex_moveOne(&bras, BRAS_EPAULE_ID, position_readyToPick[0], HERKULEX_LED_GREEN);
+    Herkulex_moveOne(&bras, BRAS_EPAULE_ID, position_ready[0], HERKULEX_LED_GREEN);
     HAL_Delay(500);
     
-    Herkulex_moveOne(&bras, BRAS_POIGNET_ID, position_readyToPick[2], HERKULEX_LED_GREEN);
+    Herkulex_moveOne(&bras, BRAS_POIGNET_ID, position_ready[2], HERKULEX_LED_GREEN);
     HAL_Delay(500);
 
-    Herkulex_moveOne(&bras, BRAS_COUDE_ID, position_readyToPick[1], HERKULEX_LED_GREEN);
+    Herkulex_moveOne(&bras, BRAS_COUDE_ID, position_ready[1], HERKULEX_LED_GREEN);
     HAL_Delay(500);
 
     BRAS_release();    
