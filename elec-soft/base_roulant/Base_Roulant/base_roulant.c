@@ -65,7 +65,7 @@ void BR_init(TIM_HandleTypeDef * TIM_Regulate,TIM_HandleTypeDef * TIM_Motor_Left
     Motor_Init(&motor_right, DIR_Port_Right, DIR_Pin_Right, TIM_Motor_Right, TIM_Channel_Motor_Right);
     Timer_Regulate = TIM_Regulate;
 	/* Init CAN interface */
-    CAN_initInterface(hfdcan);
+    CAN_initInterface(hfdcan, 2);
     CAN_filterConfig();
     CAN_setReceiveCallback(BR_executeCommandFromCAN);
     CAN_start();

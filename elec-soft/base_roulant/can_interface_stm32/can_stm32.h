@@ -73,7 +73,7 @@ extern uint8_t CAN_ID_STM;
  * @param hfdcan Handle of the CAN peripheral.
  * @return None
  */
-void CAN_initInterface(FDCAN_HandleTypeDef * hfdcan);
+void CAN_initInterface(FDCAN_HandleTypeDef * hfdcan, uint8_t idSTM);
 
 /**
  * @brief Configure the filter for the CAN peripheral. Required after the initialization of the CAN peripheral.
