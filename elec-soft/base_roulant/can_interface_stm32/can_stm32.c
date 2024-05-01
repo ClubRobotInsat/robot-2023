@@ -137,8 +137,8 @@ uint8_t CAN_decodeIDSrc(void)
 }
 
 void CAN_sendBackPing(uint8_t destID) {
-	uint8_t data[8] = {1,0,0,0,0,0,0,0};
-	CAN_send(data, 1, CAN_ID_STM);
+	uint8_t data[8] = {1,0,1,0,1,0,1,0};
+	CAN_send(data, destID, CAN_ID_STM);
 }
 
 void CAN_errorHandler(void)
