@@ -322,8 +322,23 @@ void BR_regulateSpeed(void){
 			applySpeedRight = regulatedSpeedRight;
 		}
 
-		BR_setPWM(BR_MOTOR_LEFT, (int)(applySpeedLeft * SPEED_TO_PWM_CONVERSION));
-		BR_setPWM(BR_MOTOR_RIGHT, (int)(applySpeedRight * SPEED_TO_PWM_CONVERSION));
+		if(targetSpeedLeft != 0.0)
+		{
+			BR_setPWM(BR_MOTOR_LEFT, (int)(applySpeedLeft * SPEED_TO_PWM_CONVERSION));
+		}
+		else
+		{
+			BR_setPWM(BR_MOTOR_LEFT, 0);
+		}
+
+		if(targetSpeedRight != 0.0)
+		{
+			BR_setPWM(BR_MOTOR_RIGHT, (int)(applySpeedRight * SPEED_TO_PWM_CONVERSION));
+		}
+		else
+		{
+			BR_setPWM(BR_MOTOR_RIGHT, 0);
+		}
 
 
 	   // Update old speed
@@ -354,6 +369,7 @@ void BR_executeCommandFromCAN(void){
 	uint8_t * cmd = CAN_getRXData();
     uint8_t dataToRaspi[8] = {0,0,0,0,0,0,0,0};
     float speed;
+    float distance;
     BR_Motor_ID_t idMotor;
 	switch (cmd[0]){
 		case 0:
@@ -379,13 +395,24 @@ void BR_executeCommandFromCAN(void){
 			//BR_setDirection(cmd[1], cmd[2]);
 			break;
 		case 6:
-			dataToRaspi[0] = 0x05;
+			dataToRaspi[0] = cmd[0];
 			dataToRaspi[1] = cmd[1];
 			speed = BR_getSpeed(cmd[1]) / 10.0;
 			dataToRaspi[2] = (speed && 0xFF00);
 			dataToRaspi[3] = (speed && 0x00FF);
 			CAN_send(dataToRaspi, 1, CAN_ID_MASTER);
 			break;
+		case 7:
+			idMotor = cmd[1];
+			distance = BR_getDistance(idMotor);
+			dataToRaspi[0]= idMotor;
+			// little endian : https://en.wikipedia.org/wiki/Endianness
+			*&dataToRaspi[1] = distance;
+			CAN_send(dataToRaspi, 2, CAN_ID_MASTER);
+
+		case 8:
+			BR_startRecordDistance();
+
 		default :
 			break;
 	}
