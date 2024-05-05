@@ -41,6 +41,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+FDCAN_HandleTypeDef hfdcan1;
+
 TIM_HandleTypeDef htim2;
 
 UART_HandleTypeDef huart1;
@@ -58,6 +60,7 @@ static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_FDCAN1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -98,35 +101,74 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM2_Init();
   MX_USART2_UART_Init();
+  MX_FDCAN1_Init();
   /* USER CODE BEGIN 2 */
 
-  BRAS_init(&huart2, &htim2, TIM_CHANNEL_1);
+  BRAS_init(&huart1, &htim2, TIM_CHANNEL_1, &hfdcan1);
+//  BRAS_release();
+//  HAL_Delay(2000);
+//  BRAS_grab();
+  /********************** Sequence de test ******************************
+/*
   BRAS_moveHomePosition();
+  HAL_Delay(1500);
   BRAS_moveReadyPosition();
+  HAL_Delay(1500);
+  BRAS_moveFindObjetLow();
+  HAL_Delay(1000);
+
   BRAS_grab();
+
+  HAL_Delay(500);
+
   BRAS_movePutInStock();
-  //BRAS_moveHomePosition();
-  
+
+  HAL_Delay(1000);
+
+  BRAS_moveReadyPosition();
+  HAL_Delay(1500);
+  BRAS_moveFindObjetLow();
+  HAL_Delay(1000);
+
+  BRAS_grab();
+
+  HAL_Delay(500);
+
+  BRAS_movePutInStock();
+
+  HAL_Delay(1000);
+
+  BRAS_moveReadyPosition();
+  HAL_Delay(3000);
+  BRAS_moveGetFromStock();
+  HAL_Delay(500);
+  BRAS_movePlaceObject();
+*/
+  /**************************************************************/
+
+  //BRAS_grab();
+  //HAL_Delay(1000);
+  //BRAS_release();
 
 
 /*
-  Herkulex_initCommunication(&servos, &huart1);
-  Herkulex_reboot(&servos, 2);
-  Herkulex_reboot(&servos, 11);
-  Herkulex_reboot(&servos, 1);
+  Herkulex_initCommunication(&servos, &huart2);
+//  Herkulex_reboot(&servos, 2);
+//  Herkulex_reboot(&servos, 11);
+//  Herkulex_reboot(&servos, 1);
   Herkulex_reboot(&servos, 10);
   Herkulex_initServos(&servos);
-
-  Herkulex_setLed(&servos, 10, HERKULEX_LED_PINK);
-  Herkulex_moveOne(&servos, 10, 200, HERKULEX_LED_CYAN);
-  HAL_Delay(1000);
+*/
+//  Herkulex_setLed(&servos, 10, HERKULEX_LED_PINK);
+//  Herkulex_moveOne(&servos, 10, 200, HERKULEX_LED_CYAN);
+//  HAL_Delay(1000);
   //Herkulex_getPosition(&servos, 2, &pos_epaule);
   //Herkulex_getPosition(&servos, 11, &pos_coude);
   //Herkulex_getPosition(&servos, 1, &pos_poignet);
-  Herkulex_getPosition(&servos, 10, &pos_poignet);
+//  Herkulex_getPosition(&servos, 10, &pos_poignet);
+//
+//  Herkulex_setLed(&servos, 10, HERKULEX_LED_GREEN);
 
-  Herkulex_setLed(&servos, 10, HERKULEX_LED_GREEN);
-*/
   /*
   Herkulex_moveOne(&servos, 11, 20, HERKULEX_LED_PINK);
   HAL_Delay(2000);
@@ -138,12 +180,12 @@ int main(void)
   HAL_Delay(2000);
   pos1 = Herkulex_getPosition(&servos, 7);
    */
-  /*
+/*
   Herkulex_changeMode(&servos, 10, HERKULEX_MODE_CONTINUOUS);
   status = Herkulex_getCurrentMode(&servos, 10, &result);
   Herkulex_rotateOne(&servos, 10, -900, HERKULEX_LED_GREEN);
   HAL_Delay(2000);
-
+*/
   //angle = Herkulex_getAngle(&servos, 7);
 
 
@@ -159,6 +201,10 @@ int main(void)
 		  HAL_Delay(1000);
 		  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 6);
 	  */
+	  BRAS_getCMDfromCAN();
+
+	  //BRAS_getPosition();
+	  HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -204,6 +250,49 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief FDCAN1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_FDCAN1_Init(void)
+{
+
+  /* USER CODE BEGIN FDCAN1_Init 0 */
+
+  /* USER CODE END FDCAN1_Init 0 */
+
+  /* USER CODE BEGIN FDCAN1_Init 1 */
+
+  /* USER CODE END FDCAN1_Init 1 */
+  hfdcan1.Instance = FDCAN1;
+  hfdcan1.Init.ClockDivider = FDCAN_CLOCK_DIV2;
+  hfdcan1.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
+  hfdcan1.Init.Mode = FDCAN_MODE_NORMAL;
+  hfdcan1.Init.AutoRetransmission = DISABLE;
+  hfdcan1.Init.TransmitPause = DISABLE;
+  hfdcan1.Init.ProtocolException = DISABLE;
+  hfdcan1.Init.NominalPrescaler = 8;
+  hfdcan1.Init.NominalSyncJumpWidth = 1;
+  hfdcan1.Init.NominalTimeSeg1 = 3;
+  hfdcan1.Init.NominalTimeSeg2 = 4;
+  hfdcan1.Init.DataPrescaler = 1;
+  hfdcan1.Init.DataSyncJumpWidth = 1;
+  hfdcan1.Init.DataTimeSeg1 = 1;
+  hfdcan1.Init.DataTimeSeg2 = 1;
+  hfdcan1.Init.StdFiltersNbr = 1;
+  hfdcan1.Init.ExtFiltersNbr = 0;
+  hfdcan1.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
+  if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN FDCAN1_Init 2 */
+
+  /* USER CODE END FDCAN1_Init 2 */
+
 }
 
 /**

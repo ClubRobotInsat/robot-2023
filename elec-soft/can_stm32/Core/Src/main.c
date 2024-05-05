@@ -89,7 +89,8 @@ int main(void)
   MX_GPIO_Init();
   MX_FDCAN1_Init();
   /* USER CODE BEGIN 2 */
-
+  CAN_initInterface(&hfdcan1, 3);
+  CAN_start();
   /* USER CODE END 2 */
 
   /* Infinite loop */

@@ -26,21 +26,29 @@ typedef struct {
 
 extern uint16_t position_actuel[3];
 
-void BRAS_init(UART_HandleTypeDef * huart, TIM_HandleTypeDef * pinceTim, uint32_t pinceChannel);
+void BRAS_init(UART_HandleTypeDef * huart, TIM_HandleTypeDef * pinceTim, uint32_t pinceChannel, FDCAN_HandleTypeDef * hfdcan);
 
 void BRAS_moveHomePosition(void);
 
 void BRAS_moveReadyPosition(void);
 
+void BRAS_moveFindObjetLow();
+
+void BRAS_moveFindObjetHigh();
+
 void BRAS_movePutInStock(void);
 
 void BRAS_moveGetFromStock(void);
+
+void BRAS_movePlaceObject(void);
 
 void BRAS_grab(void);
 
 void BRAS_release(void);
 
 void BRAS_getPosition(void);
+
+void BRAS_getCMDfromCAN(void);
 
 #ifdef __cplusplus
 extern "C" }
