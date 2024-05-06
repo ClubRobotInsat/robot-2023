@@ -322,7 +322,7 @@ void BR_regulateSpeed(void){
 			applySpeedRight = regulatedSpeedRight;
 		}
 
-		if(targetSpeedLeft != 0.0)
+		if(targetSpeedLeft > 1.0)
 		{
 			BR_setPWM(BR_MOTOR_LEFT, (int)(applySpeedLeft * SPEED_TO_PWM_CONVERSION));
 		}
@@ -331,7 +331,7 @@ void BR_regulateSpeed(void){
 			BR_setPWM(BR_MOTOR_LEFT, 0);
 		}
 
-		if(targetSpeedRight != 0.0)
+		if(targetSpeedRight > 1.0)
 		{
 			BR_setPWM(BR_MOTOR_RIGHT, (int)(applySpeedRight * SPEED_TO_PWM_CONVERSION));
 		}
@@ -368,8 +368,11 @@ void BR_getCMDfromCAN(void){
 void BR_executeCommandFromCAN(void){
 	uint8_t * cmd = CAN_getRXData();
     uint8_t dataToRaspi[8] = {0,0,0,0,0,0,0,0};
-    float speed;
+    uint32_t speed_uninterpreted;
+    float speed_float;
     float distance;
+    uint32_t speed_mem = *((uint32_t*)&speed_float);
+    uint32_t distance_mem = *((uint32_t*)&distance);
     BR_Motor_ID_t idMotor;
 	switch (cmd[0]){
 		case 0:
@@ -383,13 +386,17 @@ void BR_executeCommandFromCAN(void){
 			break;
 		case 3:
 			idMotor = cmd[1];
-			speed = (float)((cmd[2] << 24) + (cmd[3]<<16) + (cmd[4]<<8) + cmd[5]) / 10.0;
-			BR_setSpeed(idMotor,speed);
+			// speed en float 32, bigEndian
+			speed_uninterpreted = (((cmd[5] & 0x000000FF)<< 24) + (cmd[4]<<16) + (cmd[3]<<8) + cmd[2]);
+			speed_float = *((float*)&speed_uninterpreted);
+			BR_setSpeed(idMotor,speed_float);
 			break;
 		case 4:
 			idMotor = cmd[1];
-			speed = (float)((cmd[2] << 24) + (cmd[3]<<16) + (cmd[4]<<8) + cmd[5]) / 10.0;
-			BR_setSpeed(idMotor,speed);
+			// speed en float 32, bigEndian
+			speed_uninterpreted = (((cmd[5] & 0x000000FF)<< 24) + (cmd[4]<<16) + (cmd[3]<<8) + cmd[2]);
+			speed_float = *((float*)&speed_uninterpreted);
+			BR_setSpeed(idMotor,speed_float);
 			break;
 		case 5:
 			//BR_setDirection(cmd[1], cmd[2]);
@@ -397,22 +404,31 @@ void BR_executeCommandFromCAN(void){
 		case 6:
 			dataToRaspi[0] = cmd[0];
 			dataToRaspi[1] = cmd[1];
-			speed = BR_getSpeed(cmd[1]) / 10.0;
-			dataToRaspi[2] = (speed && 0xFF00);
-			dataToRaspi[3] = (speed && 0x00FF);
+			speed_float = BR_getSpeed(cmd[1]);
+			speed_mem = *((uint32_t*)&speed_float);
+			// speed en float 32, bigEndian
+			dataToRaspi[5] = (speed_mem & 0xFF);
+			dataToRaspi[4] = (speed_mem >> 8) & 0xFF;
+			dataToRaspi[3] = (speed_mem >> 16) & 0xFF ;
+			dataToRaspi[2] = (speed_mem >> 24) & 0xFF;
 			CAN_send(dataToRaspi, 1, CAN_ID_MASTER);
 			break;
 		case 7:
-			idMotor = cmd[1];
-			distance = BR_getDistance(idMotor);
-			dataToRaspi[0]= idMotor;
-			// little endian : https://en.wikipedia.org/wiki/Endianness
-			*&dataToRaspi[1] = distance;
+			dataToRaspi[0] = cmd[0];
+			dataToRaspi[1] = cmd[1];
+			distance = BR_getDistance(cmd[1]);
+			distance_mem = *((uint32_t*)&distance);
+			// bigEndian : https://en.wikipedia.org/wiki/Endianness
+			dataToRaspi[5] = (distance_mem & 0xFF);
+			dataToRaspi[4] = (distance_mem >> 8) & 0xFF;
+			dataToRaspi[3] = (distance_mem >> 16) & 0xFF ;
+			dataToRaspi[2] = (distance_mem >> 24) & 0xFF;
 			CAN_send(dataToRaspi, 2, CAN_ID_MASTER);
-
+			BR_startRecordDistance();
+			break;
 		case 8:
 			BR_startRecordDistance();
-
+			break;
 		default :
 			break;
 	}
