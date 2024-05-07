@@ -14,13 +14,13 @@
 
 /* Define ------------------------------------------------------------------- */
 
-#define BR_SPEED_LIMIT_PWM	90.0
-#define BR_SPEED_LIMIT_MM_S	900.0
-#define BR_SPEED_CORRECTOR_THRESHOLD  30.0			// uncertainty : +/- 30 mm/s
+#define BR_SPEED_LIMIT_PWM				90.0
+#define BR_SPEED_LIMIT_MM_S				900.0
+#define BR_SPEED_CORRECTOR_THRESHOLD  	5.0			// uncertainty : +/- 5 mm/s
+#define BR_SPEED_STOP_THRESHOLD			1.0 		// Command under 10.0 mm/s, send 0% PWM (no regulation)
 #define BR_SPEED_CORRECTOR_KP			0.8
 #define BR_SPEED_CORRECTOR_KPD			0.0
-#define BR_SPEED_CORRECTOR_KPI			0.003
-#define BR_SPEED_STOP_THRESHOLD		10.0 		// Under 10.0 mm/s, the regulation loop is turned off
+#define BR_SPEED_CORRECTOR_KPI			0.003		// Ancien : 0.003
 /* Global variables ----------------------------------------------------------*/
 Motor_Config motor_left;
 Motor_Config motor_right;
@@ -78,7 +78,7 @@ void BR_init(TIM_HandleTypeDef * TIM_Regulate,TIM_HandleTypeDef * TIM_Motor_Left
     Motor_Init(&motor_left, DIR_Port_Left, DIR_Pin_Left, TIM_Motor_Left, TIM_Channel_Motor_Left);
     Motor_Init(&motor_right, DIR_Port_Right, DIR_Pin_Right, TIM_Motor_Right, TIM_Channel_Motor_Right);
     Timer_Regulate = TIM_Regulate;
-    BR_startAllMotors();
+    
 	/* Init CAN interface */
     CAN_initInterface(hfdcan, CAN_ID_STM);
     CAN_filterConfig();
@@ -86,32 +86,42 @@ void BR_init(TIM_HandleTypeDef * TIM_Regulate,TIM_HandleTypeDef * TIM_Motor_Left
     CAN_start();
     CAN_sendBackPing(CAN_ID_MASTER);
     HAL_Delay(100);
+
+	/* Start all motors */
+	BR_startAllMotors();
 }
 
 void BR_startAllMotors(void){
 	enable_flag = 1;
+
+	/* Init regulation loop variables */
+	regulatedSpeedLeft=0.0;
+	regulatedSpeedRight=0.0;
+	oldSpeedLeft = 0.0;
+	oldSpeedRight = 0.0;
+	applySpeedLeft = 0.0;
+	applySpeedRight = 0.0;
+	dkLeft = 0.0;
+	dkRight = 0.0;
+	ikLeft = 0.0;
+	ikRight = 0.0;
+
     Motor_Start(&motor_left);
     Motor_Start(&motor_right);
     Motor_Set_Direction(&motor_left, MOTOR_DIRECTION_CW);
     Motor_Set_Direction(&motor_right, MOTOR_DIRECTION_CCW);
 
-    HAL_TIM_Base_Start_IT(Timer_Regulate);
-	BR_setSpeed(BR_MOTOR_BROADCAST,0.0);
-	regulatedSpeedLeft=0.0;
-	regulatedSpeedRight=0.0;
-	oldSpeedLeft = 0.0;
-	oldSpeedRight = 0.0;
-	applySpeedLeft = 0.0;
-	applySpeedRight = 0.0;
-	dkLeft = 0.0;
-	dkRight = 0.0;
-	ikLeft = 0.0;
-	ikRight = 0.0;
+	/* Start motors at speed 0.0 */
+	HAL_TIM_Base_Start_IT(Timer_Regulate);
+	BR_setSpeed(BR_MOTOR_BROADCAST, 0.0);
 }
 
 void BR_stopAllMotors(void){
 	enable_flag = 0;
+	Motor_Stop(&motor_left);
+    Motor_Stop(&motor_right);
 	BR_setSpeed(BR_MOTOR_BROADCAST,0.0);
+	HAL_TIM_Base_Stop_IT(Timer_Regulate);
 	regulatedSpeedLeft=0.0;
 	regulatedSpeedRight=0.0;
 	oldSpeedLeft = 0.0;
@@ -122,8 +132,6 @@ void BR_stopAllMotors(void){
 	dkLeft = 0.0;
 	ikLeft = 0.0;
 	ikRight = 0.0;
-    Motor_Stop(&motor_left);
-    Motor_Stop(&motor_right);
 }
 
 void BR_setDirection(BR_Motor_ID_t motor, BR_Direction_t direction){   
@@ -234,6 +242,7 @@ float BR_getDistance(BR_Motor_ID_t motor){
 
 
 void BR_setSpeed(BR_Motor_ID_t motor,float speed) {
+	/* Handle negative speed */
 	if (speed >= 0.0){
 		BR_setDirection(motor, BR_DIRECTION_CW);
 	} else {
@@ -249,24 +258,27 @@ void BR_setSpeed(BR_Motor_ID_t motor,float speed) {
 	switch(motor){
 		case BR_MOTOR_LEFT:
 			targetSpeedLeft = speed;
-			BR_setPWM(BR_MOTOR_LEFT, (int)(targetSpeedLeft * SPEED_TO_PWM_CONVERSION));
+			//BR_setPWM(BR_MOTOR_LEFT, (int)(speed * SPEED_TO_PWM_CONVERSION));
 			break;
 		case BR_MOTOR_RIGHT:
 			targetSpeedRight = speed;
-			BR_setPWM(BR_MOTOR_RIGHT, (int)(targetSpeedRight * SPEED_TO_PWM_CONVERSION));
+			//BR_setPWM(BR_MOTOR_RIGHT, (int)(speed * SPEED_TO_PWM_CONVERSION));
 			break;
 		case BR_MOTOR_BROADCAST:
 			targetSpeedLeft = speed;
 			targetSpeedRight = speed;
+			//BR_setPWM(BR_MOTOR_BROADCAST, (int)(speed * SPEED_TO_PWM_CONVERSION));
 			break;
 		default:
 			break;
 	}
 }
 
+
+
 void BR_regulateSpeed(void){
-    float currentSpeedLeft;
-    float currentSpeedRight;
+	float currentSpeedLeft;
+	float currentSpeedRight;
     float errorLeft;
     float errorRight;
 
@@ -276,7 +288,7 @@ void BR_regulateSpeed(void){
 		currentSpeedRight = BR_getSpeed(BR_MOTOR_RIGHT);
 		if((currentSpeedLeft < 0.0) ||(currentSpeedRight < 0.0))
 		{
-			//detect invalid speed readings
+			//detect invalid speed readings, encoder return -1.0 if error
 			currentSpeedLeft = 0.0;
 			currentSpeedRight = 0.0;
 		}
@@ -322,7 +334,7 @@ void BR_regulateSpeed(void){
 			applySpeedRight = regulatedSpeedRight;
 		}
 
-		if(targetSpeedLeft > 1.0)
+		if(targetSpeedLeft > BR_SPEED_STOP_THRESHOLD)
 		{
 			BR_setPWM(BR_MOTOR_LEFT, (int)(applySpeedLeft * SPEED_TO_PWM_CONVERSION));
 		}
@@ -331,7 +343,7 @@ void BR_regulateSpeed(void){
 			BR_setPWM(BR_MOTOR_LEFT, 0);
 		}
 
-		if(targetSpeedRight > 1.0)
+		if(targetSpeedRight > BR_SPEED_STOP_THRESHOLD)
 		{
 			BR_setPWM(BR_MOTOR_RIGHT, (int)(applySpeedRight * SPEED_TO_PWM_CONVERSION));
 		}
@@ -372,8 +384,11 @@ void BR_executeCommandFromCAN(void){
     float speed_float;
     float distance;
     uint32_t speed_mem = *((uint32_t*)&speed_float);
+
     uint32_t distance_mem = *((uint32_t*)&distance);
     BR_Motor_ID_t idMotor;
+
+    uint32_t test_data = 0;
 	switch (cmd[0]){
 		case 0:
 			BR_stopAllMotors();
@@ -387,44 +402,66 @@ void BR_executeCommandFromCAN(void){
 		case 3:
 			idMotor = cmd[1];
 			// speed en float 32, bigEndian
-			speed_uninterpreted = (((cmd[5] & 0x000000FF)<< 24) + (cmd[4]<<16) + (cmd[3]<<8) + cmd[2]);
+			speed_uninterpreted = (((cmd[2] & 0x000000FF)<< 24) + (cmd[3]<<16) + (cmd[4]<<8) + cmd[5]);
+			// Convert to float
 			speed_float = *((float*)&speed_uninterpreted);
+			/*
+			test_data = (uint32_t) speed_float;
+			dataToRaspi[0] = cmd[0];
+			dataToRaspi[1] = cmd[1];
+
+			dataToRaspi[2] = (test_data >> 24) & 0xFF;
+			dataToRaspi[3] = (test_data >> 16) & 0xFF ;
+			dataToRaspi[4] = (test_data >> 8) & 0xFF;
+			dataToRaspi[5] = test_data & 0xFF;
+
+			CAN_send(dataToRaspi, 1, CAN_ID_MASTER);
+			*/
+			// Set speed
 			BR_setSpeed(idMotor,speed_float);
 			break;
 		case 4:
 			idMotor = cmd[1];
 			// speed en float 32, bigEndian
-			speed_uninterpreted = (((cmd[5] & 0x000000FF)<< 24) + (cmd[4]<<16) + (cmd[3]<<8) + cmd[2]);
+			speed_uninterpreted = (((cmd[2] & 0x000000FF)<< 24) + (cmd[3]<<16) + (cmd[4]<<8) + cmd[5]);
+			// Convert to float
 			speed_float = *((float*)&speed_uninterpreted);
+			// Set speed
 			BR_setSpeed(idMotor,speed_float);
 			break;
 		case 5:
 			//BR_setDirection(cmd[1], cmd[2]);
 			break;
 		case 6:
-			dataToRaspi[0] = cmd[0];
-			dataToRaspi[1] = cmd[1];
+			// Get speed from encoder
 			speed_float = BR_getSpeed(cmd[1]);
 			speed_mem = *((uint32_t*)&speed_float);
+
+			dataToRaspi[0] = cmd[0];
+			dataToRaspi[1] = cmd[1];
+
 			// speed en float 32, bigEndian
-			dataToRaspi[5] = (speed_mem & 0xFF);
-			dataToRaspi[4] = (speed_mem >> 8) & 0xFF;
-			dataToRaspi[3] = (speed_mem >> 16) & 0xFF ;
 			dataToRaspi[2] = (speed_mem >> 24) & 0xFF;
+			dataToRaspi[3] = (speed_mem >> 16) & 0xFF ;
+			dataToRaspi[4] = (speed_mem >> 8) & 0xFF;
+			dataToRaspi[5] = speed_mem & 0xFF;
+
 			CAN_send(dataToRaspi, 1, CAN_ID_MASTER);
 			break;
 		case 7:
-			dataToRaspi[0] = cmd[0];
-			dataToRaspi[1] = cmd[1];
+
 			distance = BR_getDistance(cmd[1]);
 			distance_mem = *((uint32_t*)&distance);
+
+			dataToRaspi[0] = cmd[0];
+			dataToRaspi[1] = cmd[1];
 			// bigEndian : https://en.wikipedia.org/wiki/Endianness
-			dataToRaspi[5] = (distance_mem & 0xFF);
-			dataToRaspi[4] = (distance_mem >> 8) & 0xFF;
-			dataToRaspi[3] = (distance_mem >> 16) & 0xFF ;
 			dataToRaspi[2] = (distance_mem >> 24) & 0xFF;
+			dataToRaspi[3] = (distance_mem >> 16) & 0xFF;
+			dataToRaspi[4] = (distance_mem >> 8) & 0xFF;
+			dataToRaspi[5] = distance_mem & 0xFF;
+
 			CAN_send(dataToRaspi, 2, CAN_ID_MASTER);
-			BR_startRecordDistance();
 			break;
 		case 8:
 			BR_startRecordDistance();
