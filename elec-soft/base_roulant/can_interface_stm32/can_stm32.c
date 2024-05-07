@@ -74,6 +74,11 @@ void CAN_start(void)
         CAN_errorHandler();
     }
 
+//    if (HAL_FDCAN_ConfigInterruptLines(canHandle, FDCAN_IT_GROUP_RX_FIFO0, FDCAN_INTERRUPT_LINE0) != HAL_OK)
+//	{
+//		CAN_errorHandler();
+//	}
+
     if (HAL_FDCAN_ActivateNotification(canHandle, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0) != HAL_OK)
     {
         CAN_errorHandler();
@@ -127,6 +132,12 @@ void CAN_read(void)
     }
 }
 
+//void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs){
+//	if (RxFifo0ITs == FDCAN_IT_RX_FIFO0_NEW_MESSAGE){
+//		CAN_receiveCallback();
+//	}
+//}
+
 uint8_t * CAN_getRXData(void){
     return canRX;
 }
@@ -137,8 +148,8 @@ uint8_t CAN_decodeIDSrc(void)
 }
 
 void CAN_sendBackPing(uint8_t destID) {
-	uint8_t data[8] = {1,0,0,0,0,0,0,0};
-	CAN_send(data, 1, CAN_ID_STM);
+	uint8_t data[8] = {1,0,1,0,1,0,1,0};
+	CAN_send(data, destID, CAN_ID_STM);
 }
 
 void CAN_errorHandler(void)

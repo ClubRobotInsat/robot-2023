@@ -70,7 +70,7 @@ static void MX_FDCAN1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+uint8_t dataTest[8] = {1,2,3,4,5,6,7,8};
 /* USER CODE END 0 */
 
 /**
@@ -109,6 +109,19 @@ int main(void)
   /* USER CODE BEGIN 2 */
   BR_init(&htim1 ,&htim2, TIM_CHANNEL_MOTOR_LEFT, &htim2, TIM_CHANNEL_MOTOR_RIGHT, DIR_MOTOR_1_GPIO_Port, DIR_MOTOR_1_Pin, DIR_MOTOR_2_GPIO_Port, DIR_MOTOR_2_Pin, &htim3, &htim4, &hfdcan1);
 
+  // Test sequence
+  /*
+  BR_setSpeed(BR_MOTOR_LEFT, 320.0);
+  HAL_Delay(10000);
+  BR_setSpeed(BR_MOTOR_LEFT, 20.0);
+  HAL_Delay(30000);
+  BR_setSpeed(BR_MOTOR_LEFT, 500.0);
+  HAL_Delay(10000);
+  BR_setSpeed(BR_MOTOR_LEFT, 0.0);
+  HAL_Delay(10000);
+	*/
+
+
 
   //BR_setPWM(BR_MOTOR_LEFT, 50);
   //BR_setPWM(BR_MOTOR_RIGHT, 50);
@@ -131,9 +144,15 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  s_left = BR_getSpeed(BR_MOTOR_LEFT);
-	  s_right = BR_getSpeed(BR_MOTOR_RIGHT);
+	  //s_left = BR_getSpeed(BR_MOTOR_LEFT);
+	  //s_right = BR_getSpeed(BR_MOTOR_RIGHT);
+
+    /* Uncomment to ge CMD from CAN */
 	  BR_getCMDfromCAN();
+    /********************************/
+
+	  //CAN_sendBackPing(CAN_ID_MASTER);
+	  //CAN_send(dataTest, 0, 1);
 	  HAL_Delay(10);
     /* USER CODE END WHILE */
 

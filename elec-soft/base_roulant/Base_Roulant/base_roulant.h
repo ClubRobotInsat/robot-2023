@@ -3,8 +3,8 @@
  * @author 	Triet NGUYEN (tr_nguye@insa-toulouse.fr)
  * 			Huong-Cam TANG (hctang@insa-toulouse.fr)
  * @brief Header file for the base roulant module
- * @version 0.1
- * @date 2021-03-14
+ * @version 1.0
+ * @date 01-05-2024
  * 
  * @copyright Copyright (c) 2023
  * 
@@ -46,7 +46,8 @@ extern "C" {
 /* ---------------------------Exported Types --------------------------------- */
 typedef enum {
     BR_MOTOR_LEFT = 0,
-    BR_MOTOR_RIGHT = 1
+    BR_MOTOR_RIGHT = 1,
+	BR_MOTOR_BROADCAST = 255,
 } BR_Motor_ID_t;
 
 typedef enum {
@@ -136,9 +137,10 @@ void BR_setPWM(BR_Motor_ID_t motor, uint8_t pwm);
 /**
  * @brief Set the target speed of the motor
  * 
+ * @param motor ID of the motor
  * @param speed Speed of the motor in mm/s
  */
-void BR_setSpeed(float speed);
+void BR_setSpeed(BR_Motor_ID_t motor,float speed);
 
 /**
  * @brief Regulate the speed of the motor
