@@ -51,11 +51,11 @@ uint8_t enable_flag = 0;
 /* 
  * CAN ID of the STM32 <-- CHANGE THIS ACCORDING TO THE STM32
  * ID for CDF2024 :
- * 2 : Base Roulante (Left + Right)
- * 3 : Base Roulante 2 (Front + Rear)
+ * 2 : Base Roulante (Left + Right) (Vert + Rouge)
+ * 3 : Base Roulante 2 (Front + Rear) (Blue + Jaune)
  */
 /* !!!!!!!!!!!!!!!!! */
-#define CAN_ID_STM 3
+#define CAN_ID_STM 2
 
 /*********************/
 
@@ -310,28 +310,23 @@ void BR_regulateSpeed(void){
 			regulatedSpeedRight = ikRight + BR_SPEED_CORRECTOR_KP*errorRight + dkRight;
 		}
 
-
 		// Apply regulated speed to motors
-		if(regulatedSpeedLeft < 0.0){
-			applySpeedLeft = 0.0;
-		}
-		else if(regulatedSpeedLeft > BR_SPEED_LIMIT_MM_S){
-			applySpeedLeft = BR_SPEED_LIMIT_MM_S;
-		}
-		else
+		if ((regulatedSpeedLeft >= 0.0) && (regulatedSpeedLeft <= BR_SPEED_LIMIT_MM_S))
 		{
 			applySpeedLeft = regulatedSpeedLeft;
+		} else if(regulatedSpeedLeft > BR_SPEED_LIMIT_MM_S){
+			applySpeedLeft = BR_SPEED_LIMIT_MM_S;
+		} else if(regulatedSpeedLeft < 0.0){
+			applySpeedLeft = 0.0;
 		}
 
-		if(regulatedSpeedRight < 0.0){
-			applySpeedRight = 0.0;
-		}
-		else if(regulatedSpeedRight > BR_SPEED_LIMIT_MM_S){
-			applySpeedRight = BR_SPEED_LIMIT_MM_S;
-		}
-		else
+		if ((regulatedSpeedRight >= 0.0) && (regulatedSpeedRight <= BR_SPEED_LIMIT_MM_S))
 		{
 			applySpeedRight = regulatedSpeedRight;
+		} else if(regulatedSpeedRight > BR_SPEED_LIMIT_MM_S){
+			applySpeedRight = BR_SPEED_LIMIT_MM_S;
+		} else if(regulatedSpeedRight < 0.0){
+			applySpeedRight = 0.0;
 		}
 
 		if(targetSpeedLeft > BR_SPEED_STOP_THRESHOLD)
@@ -405,6 +400,8 @@ void BR_executeCommandFromCAN(void){
 			speed_uninterpreted = (((cmd[2] & 0x000000FF)<< 24) + (cmd[3]<<16) + (cmd[4]<<8) + cmd[5]);
 			// Convert to float
 			speed_float = *((float*)&speed_uninterpreted);
+			// Set speed
+			BR_setSpeed(idMotor,speed_float);
 			/*
 			test_data = (uint32_t) speed_float;
 			dataToRaspi[0] = cmd[0];
@@ -417,8 +414,6 @@ void BR_executeCommandFromCAN(void){
 
 			CAN_send(dataToRaspi, 1, CAN_ID_MASTER);
 			*/
-			// Set speed
-			BR_setSpeed(idMotor,speed_float);
 			break;
 		case 4:
 			idMotor = cmd[1];
@@ -428,6 +423,17 @@ void BR_executeCommandFromCAN(void){
 			speed_float = *((float*)&speed_uninterpreted);
 			// Set speed
 			BR_setSpeed(idMotor,speed_float);
+
+			test_data = (uint32_t) speed_float;
+			dataToRaspi[0] = cmd[0];
+			dataToRaspi[1] = cmd[1];
+
+			dataToRaspi[2] = (test_data >> 24) & 0xFF;
+			dataToRaspi[3] = (test_data >> 16) & 0xFF ;
+			dataToRaspi[4] = (test_data >> 8) & 0xFF;
+			dataToRaspi[5] = test_data & 0xFF;
+
+			CAN_send(dataToRaspi, 1, CAN_ID_MASTER);
 			break;
 		case 5:
 			//BR_setDirection(cmd[1], cmd[2]);
