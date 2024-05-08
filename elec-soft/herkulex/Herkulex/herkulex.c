@@ -2,7 +2,7 @@
  * @file herkulex.c
  * @author Triet NGUYEN (tr_nguye@insa-toulouse.fr)
  * @brief Library to control a Herkulex servo motor
- * @version 0.1
+ * @version 1.0
  * @date 2024-01-04
  *
  * @copyright Copyright (c) 2024
@@ -334,6 +334,37 @@ Herkulex_StatusTypedef  Herkulex_getStatusDetail(Herkulex_Struct * servos, uint8
 			return Herkulex_ErrorReceiveFailed; 				//checksum not true
 		}
 		(*ptrResult) = buffer[8];			// return Status Detail
+		return Herkulex_OK;			
+	} else {
+		return Herkulex_ErrorReceiveFailed;					//Message not received (timeout)
+	};
+}
+
+Herkulex_StatusTypedef Herkulex_getStatus(Herkulex_Struct * servos, uint8_t servoID, uint16_t * ptrResult){
+	uint8_t package_sizeToSend;
+	uint8_t checksum = 0;
+	uint8_t buffer[9] = {0};		// Herkulex will send 9 bytes
+
+	// Build request to Herkulex
+	package_sizeToSend = HMB_stat(servos->package, servoID);
+
+	// Start listen to incoming data
+	Herkulex_startListenData(servos, buffer, 9);
+
+	// Send request to Herkulex
+	if (Herkulex_sendData(servos, package_sizeToSend) == Herkulex_ErrorSendFailed){
+		return Herkulex_ErrorSendFailed;
+	}
+	// Wait for Herkulex to response
+	if (Herkulex_waitToReceiveData()){		// read 9 bytes from serial
+		messageReceived = false;
+		__HAL_UART_FLUSH_DRREGISTER(servos->huart);
+		checksum = (buffer[2]^buffer[3]^buffer[4]^buffer[7]^buffer[8]) & 0xFE;
+
+		if ((checksum != buffer[5]) && (((~checksum)&0xFE) != buffer[6])){
+			return Herkulex_ErrorReceiveFailed; 				//checksum not true
+		}
+		(*ptrResult) = (buffer[7]<<8)+buffer[8];			// return Status
 		return Herkulex_OK;			
 	} else {
 		return Herkulex_ErrorReceiveFailed;					//Message not received (timeout)

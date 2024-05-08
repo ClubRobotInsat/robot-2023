@@ -2,7 +2,7 @@
  * @file herkulex.h
  * @author Triet NGUYEN (tr_nguye@insa-toulouse.fr)
  * @brief Header of library to control a Herkulex servo motor
- * @version 0.2 : Add function to write to RAM 
+ * @version 1.0 : Add function to write to RAM 
  * @date 2024-01-04
  *
  * @copyright Copyright (c) 2024
@@ -312,6 +312,19 @@ Herkulex_StatusTypedef  Herkulex_getStatusError(Herkulex_Struct * servos, uint8_
  */
 Herkulex_StatusTypedef Herkulex_getStatusDetail(Herkulex_Struct * servos, uint8_t servoID, uint8_t * ptrResult);
 
+/**
+ * @fn Herkulex_StatusTypedef Herkulex_getStatus(Herkulex_Struct*, uint8_t, uint16_t)
+ * @brief Get status detail of a servo
+ * 
+ * @param servos Herkulex_Struct Handler for all servos on a serial link
+ * @param servoID ID of the servo to get status detail
+ * @param ptrResult Pointer to the status of the servo. 
+ * 					First byte can be one on the list: HERKULEX_STATUS_ERROR
+ * 					Second byte can be one on the list: HERKULEX_STATUS_DETAIL
+ * Check the manual at page 39 for more details.
+ * @return Herkulex_StatusTypedef Status of the function
+ */
+Herkulex_StatusTypedef Herkulex_getStatus(Herkulex_Struct * servos, uint8_t servoID, uint16_t * ptrResult);
 /**
  * @fn uint8_t Herkulex_getCurrentMode(Herkulex_Struct*, uint8_t)
  * @brief Get current mode of a servo

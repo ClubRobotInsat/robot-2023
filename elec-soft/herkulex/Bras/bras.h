@@ -28,19 +28,19 @@ extern uint16_t position_actuel[3];
 
 void BRAS_init(UART_HandleTypeDef * huart, TIM_HandleTypeDef * pinceTim, uint32_t pinceChannel, FDCAN_HandleTypeDef * hfdcan);
 
-void BRAS_moveHomePosition(void);
+int BRAS_moveHomePosition(void);
 
-void BRAS_moveReadyPosition(void);
+int BRAS_moveReadyPosition(void);
 
-void BRAS_moveFindObjetLow();
+int BRAS_moveFindObjetLow();
 
-void BRAS_moveFindObjetHigh();
+int BRAS_moveFindObjetHigh();
 
-void BRAS_movePutInStock(void);
+int BRAS_movePutInStock(void);
 
-void BRAS_moveGetFromStock(void);
+int BRAS_moveGetFromStock(void);
 
-void BRAS_movePlaceObject(void);
+int BRAS_movePlaceObject(void);
 
 void BRAS_grab(void);
 
@@ -48,7 +48,9 @@ void BRAS_release(void);
 
 void BRAS_getPosition(void);
 
-void BRAS_getCMDfromCAN(void);
+void BRAS_readMsgFromCAN(void);
+
+void BRAS_execCMD(void);
 
 #ifdef __cplusplus
 extern "C" }

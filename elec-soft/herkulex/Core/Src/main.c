@@ -105,15 +105,18 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   BRAS_init(&huart1, &htim2, TIM_CHANNEL_1, &hfdcan1);
+  HAL_Delay(100);
+
 //  BRAS_release();
 //  HAL_Delay(2000);
 //  BRAS_grab();
-  /********************** Sequence de test ******************************
-/*
+  /********************** Sequence de test *******************************/
+  /*
   BRAS_moveHomePosition();
   HAL_Delay(1500);
   BRAS_moveReadyPosition();
   HAL_Delay(1500);
+
   BRAS_moveFindObjetLow();
   HAL_Delay(1000);
 
@@ -201,10 +204,10 @@ int main(void)
 		  HAL_Delay(1000);
 		  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 6);
 	  */
-	  BRAS_getCMDfromCAN();
+	  BRAS_readMsgFromCAN();
 
 	  //BRAS_getPosition();
-	  HAL_Delay(100);
+	  HAL_Delay(10);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
