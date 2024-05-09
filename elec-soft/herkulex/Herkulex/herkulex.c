@@ -147,7 +147,7 @@ void Herkulex_initCommunication(Herkulex_Struct * servos, UART_HandleTypeDef * h
 Herkulex_StatusTypedef  Herkulex_initServos(Herkulex_Struct * servos){
 	uint8_t status;
 	status = Herkulex_reboot(servos, HERKULEX_BROADCAST_ID);
-	HAL_Delay(100);
+	HAL_Delay(400);
 	status = Herkulex_clearError(servos, HERKULEX_BROADCAST_ID);
 	HAL_Delay(100);
 

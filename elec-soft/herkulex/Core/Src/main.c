@@ -104,9 +104,9 @@ int main(void)
   MX_FDCAN1_Init();
   /* USER CODE BEGIN 2 */
 
-  BRAS_init(&huart1, &htim2, TIM_CHANNEL_1, &hfdcan1);
+  BRAS_init(&huart1, &huart2, &htim2, TIM_CHANNEL_1, &hfdcan1);
   HAL_Delay(100);
-
+  BRAS_moveHomePosition();
 //  BRAS_release();
 //  HAL_Delay(2000);
 //  BRAS_grab();
