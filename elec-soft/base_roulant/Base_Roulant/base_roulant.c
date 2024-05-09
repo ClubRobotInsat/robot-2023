@@ -336,6 +336,7 @@ void BR_regulateSpeed(void){
 		else
 		{
 			BR_setPWM(BR_MOTOR_LEFT, 0);
+			ikLeft = 0;
 		}
 
 		if(targetSpeedRight > BR_SPEED_STOP_THRESHOLD)
@@ -345,6 +346,7 @@ void BR_regulateSpeed(void){
 		else
 		{
 			BR_setPWM(BR_MOTOR_RIGHT, 0);
+			ikRight = 0;
 		}
 
 
